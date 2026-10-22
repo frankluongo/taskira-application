@@ -117,13 +117,30 @@ describe("nextRecurrenceDate", () => {
     ).toBeNull();
   });
 
-  // §8 #8: new Date("2026-10-21") is UTC midnight, the previous day in New York.
-  it.fails("repeats weekly from the due date", () => {
-    const item = {
-      recurrence: "weekly",
-      repeat_from: "due_date",
-      due_date: "2026-10-21",
-    };
-    expect(nextRecurrenceDate(item, now)).toBe("2026-10-28");
+  describe("repeat from due date", () => {
+    // Regression tests for §8 #8: due dates are local calendar days.
+    it.each([
+      ["weekly", "2026-10-21", "2026-10-28"],
+      ["monthly", "2026-10-21", "2026-11-21"],
+      ["monthly", "2026-01-31", "2026-02-28"],
+      ["yearly", "2026-10-21", "2027-10-21"],
+      ["yearly", "2028-02-29", "2029-02-28"],
+      ["custom:3:days", "2026-10-21", "2026-10-24"],
+      ["custom:2:weeks", "2026-10-21", "2026-11-04"],
+      ["custom:6:months", "2026-08-31", "2027-02-28"],
+      ["custom:4:years", "2028-02-29", "2032-02-29"],
+    ])("%s from %s → %s", (recurrence, due_date, expected) => {
+      const item = { recurrence, repeat_from: "due_date", due_date };
+      expect(nextRecurrenceDate(item, now)).toBe(expected);
+    });
+
+    it("crosses a DST change without losing a day", () => {
+      const item = {
+        recurrence: "weekly",
+        repeat_from: "due_date",
+        due_date: "2026-10-29",
+      };
+      expect(nextRecurrenceDate(item, now)).toBe("2026-11-05");
+    });
   });
 });

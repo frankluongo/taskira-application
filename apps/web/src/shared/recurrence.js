@@ -1,4 +1,4 @@
-import { addDays, addMonths, addWeeks, addYears } from "date-fns";
+import { addDays, addMonths, addWeeks, addYears, parseISO } from "date-fns";
 import { toISODate, tomorrowISO } from "./date";
 
 // Recurrence strings: "daily" | "weekly" | "monthly" | "yearly" | "custom:<n>:<unit>"
@@ -66,16 +66,17 @@ export function recurrenceLabel(value) {
 export function nextRecurrenceDate(item, now = new Date()) {
   if (item.recurrence === "daily") return tomorrowISO(now);
 
-  // TODO(§8 #8): new Date("yyyy-MM-dd") parses as UTC midnight, which is the
-  // previous local day west of UTC.
-  const base =
-    item.repeat_from === "completion_date" ? now : new Date(item.due_date);
-
   let step = FIXED_STEPS[item.recurrence];
   if (!step && item.recurrence?.startsWith("custom:")) {
     const [, n, unit] = item.recurrence.split(":");
     step = [parseInt(n, 10), unit];
   }
   const add = step && ADDERS[step[1]];
-  return add ? toISODate(add(base, step[0])) : null;
+  if (!add) return null;
+
+  // parseISO reads "yyyy-MM-dd" as local midnight. new Date() would read it
+  // as UTC midnight, which is the previous day west of UTC (spec §8 #8).
+  const base =
+    item.repeat_from === "completion_date" ? now : parseISO(item.due_date);
+  return toISODate(add(base, step[0]));
 }
