@@ -1,4 +1,4 @@
+/* Styles were lost in b9f6066 (spec §8 #9); restore from
+   b9f6066^:src/pages/ChecklistDetail.module.css. */
 @layer features {
-  .checklistDetailRoute {
-  }
 }

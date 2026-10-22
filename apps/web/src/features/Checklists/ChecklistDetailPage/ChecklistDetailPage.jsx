@@ -1,63 +1,36 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router";
-import { useDroppable } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { DndProvider, DragContext, useSortableItem } from "@/shared/dnd";
-import { useStore } from "@/lib/store";
-import { moveWithin } from "@/shared/reorder";
+import { useNavigate, useParams } from "react-router";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { usePageHeader } from "@/app/PageHeader";
-import {
-  Button,
-  IconCheckmark,
-  IconEdit,
-  IconGrip,
-  IconPlus,
-  IconTrash,
-} from "@taskira/ui";
-import css from "./ChecklistDetailRoute.module.css";
+import { DndProvider } from "@/shared/dnd";
+import { moveWithin } from "@/shared/reorder";
+import { Button, IconCheckmark, IconEdit, IconPlus } from "@taskira/ui";
+import { containerKey, moveChecklistItem } from "../checklists.rules";
+import { useChecklistView } from "../checklists.selectors";
+import { ChecklistSection } from "../components/ChecklistSection/ChecklistSection";
+import { ItemContainer } from "../components/ItemContainer/ItemContainer";
+import { SectionChips } from "../components/SectionChips/SectionChips";
+import css from "./ChecklistDetailPage.module.css";
 
-function containerKey(sectionId) {
-  return `container:${sectionId ?? "ungrouped"}`;
-}
-
-function sectionIdFromContainerKey(key) {
-  const raw = key.replace("container:", "");
-  return raw === "ungrouped" ? null : raw;
-}
-
-export function ChecklistDetailRoute() {
+export function ChecklistDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const {
-    checklists,
-    checklist_sections,
-    checklist_items,
-    addSection,
-    renameSection,
-    deleteSection,
-    reorderSections,
-    addItem,
-    renameItem,
-    toggleItem,
-    deleteItem,
-    reorderItems,
-    resetChecklist,
-  } = useStore();
+  const { addSection, reorderSections, addItem, reorderItems, resetChecklist } =
+    useStore(
+      useShallow((s) => ({
+        addSection: s.addSection,
+        reorderSections: s.reorderSections,
+        addItem: s.addItem,
+        reorderItems: s.reorderItems,
+        resetChecklist: s.resetChecklist,
+      })),
+    );
+  const { checklist, sections, items, ungroupedItems, itemsBySection } =
+    useChecklistView(id);
 
   const [mode, setMode] = useState("check");
   const editing = mode === "edit";
-
-  const checklist = checklists.find((c) => c.id === id);
-  const sections = checklist_sections
-    .filter((s) => s.checklist_id === id)
-    .sort((a, b) => a.sort_order - b.sort_order);
-  const items = checklist_items.filter((i) => i.checklist_id === id);
-  const ungroupedItems = items
-    .filter((i) => !i.section_id)
-    .sort((a, b) => a.sort_order - b.sort_order);
 
   usePageHeader(
     checklist
@@ -98,68 +71,14 @@ export function ChecklistDetailRoute() {
     return <p className={css.empty}>Checklist not found.</p>;
   }
 
-  function itemsForSection(sectionId) {
-    return items
-      .filter((i) => i.section_id === sectionId)
-      .sort((a, b) => a.sort_order - b.sort_order);
-  }
-
   function handleSectionDragEnd({ active, over }) {
     const next = moveWithin(sections, active.id, over?.id);
     if (next) reorderSections(next);
   }
 
   function handleItemDragEnd({ active, over }) {
-    if (!over) return;
-
-    const activeItem = items.find((i) => i.id === active.id);
-    if (!activeItem) return;
-
-    const overIsContainer = String(over.id).startsWith("container:");
-    const targetSectionId = overIsContainer
-      ? sectionIdFromContainerKey(over.id)
-      : (items.find((i) => i.id === over.id)?.section_id ?? null);
-
-    const sourceKey = containerKey(activeItem.section_id);
-    const targetKey = containerKey(targetSectionId);
-
-    const sourceList = (
-      activeItem.section_id
-        ? itemsForSection(activeItem.section_id)
-        : ungroupedItems
-    ).filter((i) => i.id !== active.id);
-
-    const targetList =
-      sourceKey === targetKey
-        ? sourceList
-        : (targetSectionId
-            ? itemsForSection(targetSectionId)
-            : ungroupedItems
-          ).filter((i) => i.id !== active.id);
-
-    let insertIdx = targetList.length;
-    if (!overIsContainer) {
-      insertIdx = targetList.findIndex((i) => i.id === over.id);
-      if (insertIdx === -1) insertIdx = targetList.length;
-    }
-
-    const newTargetList = [...targetList];
-    newTargetList.splice(insertIdx, 0, {
-      ...activeItem,
-      section_id: targetSectionId,
-    });
-
-    const touched =
-      sourceKey === targetKey ? [newTargetList] : [sourceList, newTargetList];
-    const orderedPatches = touched.flatMap((list) =>
-      list.map((i, idx) => ({
-        id: i.id,
-        section_id: i.section_id ?? null,
-        sort_order: idx,
-      })),
-    );
-
-    reorderItems(orderedPatches);
+    const patches = moveChecklistItem(items, active.id, over?.id);
+    if (patches) reorderItems(patches);
   }
 
   function handleAddSection() {
@@ -170,17 +89,7 @@ export function ChecklistDetailRoute() {
   return (
     <>
       {editing && sections.length > 1 && (
-        <DragContext
-          items={sections}
-          onDragEnd={handleSectionDragEnd}
-          strategy="horizontal"
-        >
-          <div className={css.sectionChips}>
-            {sections.map((s) => (
-              <SectionChip key={s.id} section={s} />
-            ))}
-          </div>
-        </DragContext>
+        <SectionChips sections={sections} onDragEnd={handleSectionDragEnd} />
       )}
 
       <DndProvider onDragEnd={handleItemDragEnd}>
@@ -188,53 +97,16 @@ export function ChecklistDetailRoute() {
           containerId={containerKey(null)}
           items={ungroupedItems}
           editing={editing}
-          onToggle={toggleItem}
-          onRename={renameItem}
-          onDelete={deleteItem}
           onAdd={(name) => addItem(id, null, name)}
         />
-
         {sections.map((section) => (
-          <div key={section.id} className={css.section}>
-            <div className={css.sectionHeader}>
-              <span className={css.sectionName}>{section.name}</span>
-              {editing && (
-                <div className={css.sectionActions}>
-                  <Button
-                    onClick={() => {
-                      const name = prompt("Section name?", section.name);
-                      if (name?.trim()) renameSection(section.id, name.trim());
-                    }}
-                    variant="icon secondary slim"
-                  >
-                    <IconEdit />
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      if (
-                        confirm(
-                          `Delete "${section.name}"? Items will be ungrouped.`,
-                        )
-                      )
-                        deleteSection(section.id);
-                    }}
-                    variant="icon secondary slim"
-                  >
-                    <IconTrash />
-                  </Button>
-                </div>
-              )}
-            </div>
-            <ItemContainer
-              containerId={containerKey(section.id)}
-              items={itemsForSection(section.id)}
-              editing={editing}
-              onToggle={toggleItem}
-              onRename={renameItem}
-              onDelete={deleteItem}
-              onAdd={(name) => addItem(id, section.id, name)}
-            />
-          </div>
+          <ChecklistSection
+            key={section.id}
+            section={section}
+            items={itemsBySection[section.id]}
+            editing={editing}
+            onAddItem={(name) => addItem(id, section.id, name)}
+          />
         ))}
       </DndProvider>
 
@@ -248,128 +120,5 @@ export function ChecklistDetailRoute() {
         </Button>
       )}
     </>
-  );
-}
-
-function SectionChip({ section }) {
-  const { setNodeRef, style, handleProps } = useSortableItem(section.id);
-  return (
-    <button
-      ref={setNodeRef}
-      style={style}
-      {...handleProps}
-      className={css.chip}
-    >
-      {section.name}
-    </button>
-  );
-}
-
-function ItemContainer({
-  containerId,
-  items,
-  editing,
-  onToggle,
-  onRename,
-  onDelete,
-  onAdd,
-}) {
-  const { setNodeRef } = useDroppable({ id: containerId });
-  const [showAdd, setShowAdd] = useState(false);
-  const [newName, setNewName] = useState("");
-
-  function handleAdd(e) {
-    e.preventDefault();
-    const trimmed = newName.trim();
-    if (!trimmed) return;
-    onAdd(trimmed);
-    setNewName("");
-    setShowAdd(false);
-  }
-
-  return (
-    <div ref={setNodeRef} className={css.itemContainer}>
-      <SortableContext
-        items={items.map((i) => i.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        {items.map((item) => (
-          <ChecklistItemRow
-            key={item.id}
-            item={item}
-            editing={editing}
-            onToggle={onToggle}
-            onRename={onRename}
-            onDelete={onDelete}
-          />
-        ))}
-      </SortableContext>
-      {editing && !showAdd && (
-        <button className={css.addItem} onClick={() => setShowAdd(true)}>
-          <IconPlus /> Item
-        </button>
-      )}
-      {editing && showAdd && (
-        <form onSubmit={handleAdd} className={css.addItemForm}>
-          <input
-            autoFocus
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="Item name…"
-            className={css.addItemInput}
-          />
-          <button type="submit" className={css.addItemSubmit}>
-            Add
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowAdd(false)}
-            className={css.addItemCancel}
-          >
-            Cancel
-          </button>
-        </form>
-      )}
-    </div>
-  );
-}
-
-function ChecklistItemRow({ item, editing, onToggle, onRename, onDelete }) {
-  const { setNodeRef, style, handleProps } = useSortableItem(item.id);
-
-  if (editing) {
-    return (
-      <div ref={setNodeRef} style={style} className={css.itemRow}>
-        <button {...handleProps} className={css.grip}>
-          <IconGrip />
-        </button>
-        <span
-          className={css.itemName}
-          onClick={() => {
-            const name = prompt("Item name?", item.name);
-            if (name?.trim()) onRename(item.id, name.trim());
-          }}
-        >
-          {item.name}
-        </span>
-        <Button onClick={() => onDelete(item.id)} variant="icon secondary slim">
-          <IconTrash />
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <label ref={setNodeRef} style={style} className={css.itemRow}>
-      <input
-        type="checkbox"
-        checked={item.checked}
-        onChange={() => onToggle(item.id)}
-        className={css.checkbox}
-      />
-      <span className={`${css.itemName} ${item.checked ? css.checked : ""}`}>
-        {item.name}
-      </span>
-    </label>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useStore } from "@/lib/store";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { usePageHeader } from "@/app/PageHeader";
 import {
   Button,
@@ -12,16 +13,27 @@ import {
   Input,
   Form,
 } from "@taskira/ui";
-import css from "./Checklists.module.css";
+import {
+  countChecklistItems,
+  getSortedChecklists,
+} from "../checklists.selectors";
+import css from "./ChecklistsPage.module.css";
 
-export default function Checklists() {
+export function ChecklistsPage() {
   const { checklists, checklist_items, addChecklist, deleteChecklist } =
-    useStore();
+    useStore(
+      useShallow((s) => ({
+        checklists: s.checklists,
+        checklist_items: s.checklist_items,
+        addChecklist: s.addChecklist,
+        deleteChecklist: s.deleteChecklist,
+      })),
+    );
   const navigate = useNavigate();
   const [showAddModal, setShowAddModal] = useState(false);
   const [name, setName] = useState("");
 
-  const sorted = [...checklists].sort((a, b) => a.sort_order - b.sort_order);
+  const sorted = getSortedChecklists(checklists);
 
   async function handleAdd(e) {
     e.preventDefault();
@@ -44,9 +56,7 @@ export default function Checklists() {
     <>
       <List>
         {sorted.map((c) => {
-          const itemCount = checklist_items.filter(
-            (i) => i.checklist_id === c.id,
-          ).length;
+          const itemCount = countChecklistItems(checklist_items, c.id);
           return (
             <div
               key={c.id}
