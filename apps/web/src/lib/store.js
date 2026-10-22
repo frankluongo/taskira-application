@@ -1,15 +1,11 @@
 import { create } from "zustand";
-import { supabase } from "./supabase";
+import { supabase } from "@/services/supabase";
 import { todayISO } from "@/shared/date";
 import { nextRecurrenceDate } from "@/shared/recurrence";
-import {
-  scheduleChoreNotification,
-  cancelChoreNotification,
-  scheduleHabitNotification,
-  cancelHabitNotification,
-  scheduleTaskNotification,
-  cancelTaskNotification,
-} from "./notifications";
+import { cancelReminder, scheduleReminder } from "@/services/notifications";
+import { habitReminder } from "@/features/Habits/habits.rules";
+import { choreReminder } from "@/features/Chores/chores.rules";
+import { taskReminder } from "@/features/Tasks/tasks.rules";
 
 export const INBOX_PROJECT_ID = "00000000-0000-0000-0000-000000000001";
 
@@ -121,7 +117,7 @@ export const useStore = create((set, get) => ({
     };
     set((s) => ({ habits: [...s.habits, row] }));
     await supabase.from("habits").insert(row);
-    scheduleHabitNotification(row);
+    scheduleReminder(habitReminder(row));
   },
 
   updateHabit: async (id, patch) => {
@@ -131,8 +127,8 @@ export const useStore = create((set, get) => ({
     await supabase.from("habits").update(patch).eq("id", id);
     const updated = get().habits.find((h) => h.id === id);
     if (updated) {
-      await cancelHabitNotification(id);
-      scheduleHabitNotification(updated);
+      await cancelReminder(id);
+      scheduleReminder(habitReminder(updated));
     }
   },
 
@@ -142,7 +138,7 @@ export const useStore = create((set, get) => ({
       habit_completions: s.habit_completions.filter((c) => c.habit_id !== id),
     }));
     await supabase.from("habits").delete().eq("id", id);
-    cancelHabitNotification(id);
+    cancelReminder(id);
   },
 
   reorderHabits: async (ordered) => {
@@ -237,7 +233,7 @@ export const useStore = create((set, get) => ({
     };
     set((s) => ({ chores: [...s.chores, row] }));
     await supabase.from("chores").insert(row);
-    scheduleChoreNotification(row);
+    scheduleReminder(choreReminder(row));
   },
 
   updateChore: async (id, patch) => {
@@ -247,15 +243,15 @@ export const useStore = create((set, get) => ({
     await supabase.from("chores").update(patch).eq("id", id);
     const updated = get().chores.find((e) => e.id === id);
     if (updated) {
-      await cancelChoreNotification(id);
-      scheduleChoreNotification(updated);
+      await cancelReminder(id);
+      scheduleReminder(choreReminder(updated));
     }
   },
 
   deleteChore: async (id) => {
     set((s) => ({ chores: s.chores.filter((e) => e.id !== id) }));
     await supabase.from("chores").delete().eq("id", id);
-    cancelChoreNotification(id);
+    cancelReminder(id);
   },
 
   reorderChores: async (ordered) => {
@@ -281,13 +277,13 @@ export const useStore = create((set, get) => ({
         ),
       }));
       await supabase.from("chores").update({ due_date: nextDate }).eq("id", id);
-      await cancelChoreNotification(id);
+      await cancelReminder(id);
       const updated = get().chores.find((e) => e.id === id);
-      if (updated) scheduleChoreNotification(updated);
+      if (updated) scheduleReminder(choreReminder(updated));
     } else {
       set((s) => ({ chores: s.chores.filter((e) => e.id !== id) }));
       await supabase.from("chores").delete().eq("id", id);
-      cancelChoreNotification(id);
+      cancelReminder(id);
     }
   },
 
@@ -339,7 +335,7 @@ export const useStore = create((set, get) => ({
     await supabase.from("projects").update({ completed_at: now }).eq("id", id);
     await Promise.all(
       projectTasks.map((t) => {
-        cancelTaskNotification(t.id);
+        cancelReminder(t.id);
         return supabase
           .from("tasks")
           .update({ completed_at: now, recurrence: null })
@@ -358,7 +354,7 @@ export const useStore = create((set, get) => ({
     };
     set((s) => ({ tasks: [...s.tasks, row] }));
     await supabase.from("tasks").insert(row);
-    scheduleTaskNotification(row);
+    scheduleReminder(taskReminder(row));
   },
 
   updateTask: async (id, patch) => {
@@ -368,8 +364,8 @@ export const useStore = create((set, get) => ({
     await supabase.from("tasks").update(patch).eq("id", id);
     const updated = get().tasks.find((t) => t.id === id);
     if (updated) {
-      await cancelTaskNotification(id);
-      scheduleTaskNotification(updated);
+      await cancelReminder(id);
+      scheduleReminder(taskReminder(updated));
     }
   },
 
@@ -378,7 +374,7 @@ export const useStore = create((set, get) => ({
       tasks: s.tasks.filter((t) => t.id !== id && t.parent_task_id !== id),
     }));
     await supabase.from("tasks").delete().eq("id", id);
-    cancelTaskNotification(id);
+    cancelReminder(id);
   },
 
   reorderTasks: async (ordered) => {
@@ -402,7 +398,7 @@ export const useStore = create((set, get) => ({
         tasks: s.tasks.filter((t) => t.id !== id && t.parent_task_id !== id),
       }));
       await supabase.from("tasks").delete().eq("id", id);
-      cancelTaskNotification(id);
+      cancelReminder(id);
       return;
     }
 
@@ -414,9 +410,9 @@ export const useStore = create((set, get) => ({
         ),
       }));
       await supabase.from("tasks").update({ due_date: nextDate }).eq("id", id);
-      await cancelTaskNotification(id);
+      await cancelReminder(id);
       const updated = get().tasks.find((t) => t.id === id);
-      if (updated) scheduleTaskNotification(updated);
+      if (updated) scheduleReminder(taskReminder(updated));
       return;
     }
 
@@ -427,7 +423,7 @@ export const useStore = create((set, get) => ({
       ),
     }));
     await supabase.from("tasks").update({ completed_at: now }).eq("id", id);
-    cancelTaskNotification(id);
+    cancelReminder(id);
   },
 
   // ── Checklists ───────────────────────────────────────────────────────
