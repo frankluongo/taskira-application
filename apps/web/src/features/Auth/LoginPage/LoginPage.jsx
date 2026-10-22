@@ -3,9 +3,9 @@ import { Navigate } from "react-router";
 import { useAuth } from "@/services/auth";
 import { supabase } from "@/services/supabase";
 import { Button, Form, Input } from "@taskira/ui";
-import css from "./LoginRoute.module.css";
+import css from "./LoginPage.module.css";
 
-export function LoginRoute() {
+export function LoginPage() {
   const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
