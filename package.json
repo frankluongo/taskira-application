@@ -19,7 +19,8 @@
     "deploy": "node scripts/deploy.js",
     "scaffold": "node scripts/scaffold.js",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "lint": "eslint ."
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

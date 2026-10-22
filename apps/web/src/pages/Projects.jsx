@@ -29,7 +29,7 @@ export default function Projects() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [renamingProject, setRenamingProject] = useState(null);
   const [renameValue, setRenameValue] = useState("");
-  const [dragMode, setDragMode] = useState(false);
+  const [dragMode] = useState(false);
 
   const visibleProjects = projects
     .filter((p) => showArchived || !p.completed_at)

@@ -9,7 +9,7 @@ import {
   rescheduleAllHabitNotifications,
   rescheduleAllTaskNotifications,
 } from "@/lib/notifications";
-import { Container, Header, Main, Spinner } from "@taskira/ui";
+import { Header, Main, Spinner } from "@taskira/ui";
 import { AppNavigation } from "../AppNavigation/AppNavigation";
 import { PageHeaderContext } from "./PageHeaderContext";
 import css from "./Taskira.module.css";
@@ -17,6 +17,8 @@ import css from "./Taskira.module.css";
 export function Taskira() {
   const { initialize, initialized, chores, habits, tasks } = useStore();
   const { user } = useAuth();
+  // Stored but not rendered yet (spec §8 #1); Phase 2 renders it.
+  // eslint-disable-next-line no-unused-vars
   const [pageHeader, setPageHeader] = useState({ title: "", action: null });
 
   useEffect(() => {
