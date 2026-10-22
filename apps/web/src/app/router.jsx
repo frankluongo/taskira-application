@@ -1,14 +1,14 @@
 import { createHashRouter } from "react-router";
 import Today from "@/pages/Today";
 import KitchenSink from "@/pages/KitchenSink";
-import Checklists from "@/pages/Checklists";
 
+import { ChecklistDetailPage, ChecklistsPage } from "@/features/Checklists";
 import { ChoresPage } from "@/features/Chores";
 import { HabitsPage } from "@/features/Habits";
 import { ProjectsPage } from "@/features/Projects";
 import { TasksPage } from "@/features/Tasks";
 import { AppLayout } from "./AppLayout/AppLayout";
-import { ChecklistDetailRoute, LoginRoute, ProtectedRoute } from "@/pages";
+import { LoginRoute, ProtectedRoute } from "@/pages";
 
 export const router = createHashRouter([
   {
@@ -23,8 +23,8 @@ export const router = createHashRouter([
           { path: "chores", element: <ChoresPage /> },
           { path: "tasks", element: <TasksPage /> },
           { path: "projects", element: <ProjectsPage /> },
-          { path: "checklists", element: <Checklists /> },
-          { path: "checklists/:id", element: <ChecklistDetailRoute /> },
+          { path: "checklists", element: <ChecklistsPage /> },
+          { path: "checklists/:id", element: <ChecklistDetailPage /> },
           { path: "kitchen-sink", element: <KitchenSink /> },
         ],
       },

@@ -1,4 +1,4 @@
-import { supabase } from "@/services/supabase";
+import * as api from "./checklists.api";
 
 export const createChecklistsSlice = (set, get) => ({
   checklists: [],
@@ -12,7 +12,7 @@ export const createChecklistsSlice = (set, get) => ({
       sort_order: get().checklists.length,
     };
     set((s) => ({ checklists: [...s.checklists, row] }));
-    await supabase.from("checklists").insert(row);
+    await api.insertChecklist(row);
     return row;
   },
 
@@ -20,7 +20,7 @@ export const createChecklistsSlice = (set, get) => ({
     set((s) => ({
       checklists: s.checklists.map((c) => (c.id === id ? { ...c, name } : c)),
     }));
-    await supabase.from("checklists").update({ name }).eq("id", id);
+    await api.updateChecklist(id, { name });
   },
 
   deleteChecklist: async (id) => {
@@ -31,7 +31,7 @@ export const createChecklistsSlice = (set, get) => ({
       ),
       checklist_items: s.checklist_items.filter((i) => i.checklist_id !== id),
     }));
-    await supabase.from("checklists").delete().eq("id", id);
+    await api.deleteChecklist(id);
   },
 
   resetChecklist: async (id) => {
@@ -40,10 +40,7 @@ export const createChecklistsSlice = (set, get) => ({
         i.checklist_id === id ? { ...i, checked: false } : i,
       ),
     }));
-    await supabase
-      .from("checklist_items")
-      .update({ checked: false })
-      .eq("checklist_id", id);
+    await api.uncheckAllItems(id);
   },
 
   addSection: async (checklistId, name) => {
@@ -57,7 +54,7 @@ export const createChecklistsSlice = (set, get) => ({
       sort_order,
     };
     set((s) => ({ checklist_sections: [...s.checklist_sections, row] }));
-    await supabase.from("checklist_sections").insert(row);
+    await api.insertSection(row);
   },
 
   renameSection: async (id, name) => {
@@ -66,7 +63,7 @@ export const createChecklistsSlice = (set, get) => ({
         sec.id === id ? { ...sec, name } : sec,
       ),
     }));
-    await supabase.from("checklist_sections").update({ name }).eq("id", id);
+    await api.updateSection(id, { name });
   },
 
   deleteSection: async (id) => {
@@ -76,7 +73,7 @@ export const createChecklistsSlice = (set, get) => ({
         i.section_id === id ? { ...i, section_id: null } : i,
       ),
     }));
-    await supabase.from("checklist_sections").delete().eq("id", id);
+    await api.deleteSection(id);
   },
 
   reorderSections: async (ordered) => {
@@ -85,14 +82,7 @@ export const createChecklistsSlice = (set, get) => ({
         (sec) => ordered.find((o) => o.id === sec.id) || sec,
       ),
     }));
-    await Promise.all(
-      ordered.map((sec) =>
-        supabase
-          .from("checklist_sections")
-          .update({ sort_order: sec.sort_order })
-          .eq("id", sec.id),
-      ),
-    );
+    await api.updateSectionSortOrders(ordered);
   },
 
   addItem: async (checklistId, sectionId, name) => {
@@ -108,7 +98,7 @@ export const createChecklistsSlice = (set, get) => ({
       sort_order,
     };
     set((s) => ({ checklist_items: [...s.checklist_items, row] }));
-    await supabase.from("checklist_items").insert(row);
+    await api.insertItem(row);
   },
 
   renameItem: async (id, name) => {
@@ -117,7 +107,7 @@ export const createChecklistsSlice = (set, get) => ({
         i.id === id ? { ...i, name } : i,
       ),
     }));
-    await supabase.from("checklist_items").update({ name }).eq("id", id);
+    await api.updateItem(id, { name });
   },
 
   toggleItem: async (id) => {
@@ -129,29 +119,25 @@ export const createChecklistsSlice = (set, get) => ({
         i.id === id ? { ...i, checked } : i,
       ),
     }));
-    await supabase.from("checklist_items").update({ checked }).eq("id", id);
+    await api.updateItem(id, { checked });
   },
 
   deleteItem: async (id) => {
     set((s) => ({
       checklist_items: s.checklist_items.filter((i) => i.id !== id),
     }));
-    await supabase.from("checklist_items").delete().eq("id", id);
+    await api.deleteItem(id);
   },
 
+  // TODO(§8 #10): `ordered` holds { id, section_id, sort_order } patches, and
+  // they replace the stored rows outright, so moved items lose their name and
+  // checklist_id until the next reload. Merge instead of replacing.
   reorderItems: async (ordered) => {
     set((s) => ({
       checklist_items: s.checklist_items.map(
         (i) => ordered.find((o) => o.id === i.id) || i,
       ),
     }));
-    await Promise.all(
-      ordered.map((i) =>
-        supabase
-          .from("checklist_items")
-          .update({ sort_order: i.sort_order, section_id: i.section_id })
-          .eq("id", i.id),
-      ),
-    );
+    await api.updateItemPositions(ordered);
   },
 });
