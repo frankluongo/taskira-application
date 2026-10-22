@@ -20,24 +20,75 @@ npm run tauri:dev    # desktop app, hot-reloading
 npm run storybook    # component library in isolation
 ```
 
+Checks (CI runs all four on every PR):
+
+```
+npm run format:check # Prettier (npm run format to fix)
+npm run lint         # ESLint, including the layer boundaries below
+npm test             # Vitest, pinned to America/New_York
+npm run build
+```
+
+## App structure
+
+`apps/web/src` is organized by domain. Each feature owns its data access, state, rules, components, and routes:
+
+```
+apps/web/src/
+├── main.jsx        # entry: mounts <App/>
+├── app/            # shell: App, router, AppLayout, AppNavigation, PageHeader, bootstrap
+├── services/       # the outside world: supabase, auth, notifications (no React components)
+├── shared/         # domain-agnostic helpers: date, recurrence, reorder, dnd
+├── store/          # composes the feature slices into one Zustand store
+└── features/
+    ├── Habits/     # and Chores, Tasks, Projects, Checklists, Today, Auth, KitchenSink
+    │   ├── index.js              # public API: the only file other folders import
+    │   ├── habits.api.js         # Supabase reads and writes
+    │   ├── habits.slice.js       # Zustand state + actions (optimistic set → api → reminder)
+    │   ├── habits.selectors.js   # derived data: pure functions, plus small hooks
+    │   ├── habits.rules.js       # pure business rules, tested in habits.rules.test.js
+    │   ├── habits.constants.js
+    │   ├── components/<Name>/
+    │   └── HabitsPage/           # route component
+```
+
+| Layer           | May import from                                                                               |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| `app/`          | everything                                                                                    |
+| `features/<X>/` | `shared/`, `services/`, `store/`, `@taskira/ui`, `app/PageHeader`, other features' `index.js` |
+| `store/`        | feature slices                                                                                |
+| `shared/`       | npm packages, `@taskira/ui`                                                                   |
+| `services/`     | npm packages                                                                                  |
+
+Conventions:
+
+- Named exports only. Route components are `<Thing>Page` in `features/<X>/<Thing>Page/`.
+- Every component gets a folder: `Name/Name.jsx` + `Name.module.css`.
+- Use relative imports inside a feature and `@/features/<X>` across features. Import UI from `@taskira/ui` only.
+- Components subscribe to the store with a selector, never bare `useStore()`. Select raw state with `useShallow` and derive with `useMemo`, because a selector that returns a new array each call loops forever in Zustand v5.
+- Pages set their title and header actions with `usePageHeader({ title, action })`; `AppLayout` renders them.
+- Pure functions that depend on the current time take a `now` parameter.
+
+ESLint enforces the import rules. The full design is in the [restructure spec](docs/features/application-restructure/FEATURE_SPECS.md).
+
 ## Scaffolding
 
 ```
-npm run scaffold ComponentName            # base component (default type)
-npm run scaffold component ComponentName
-npm run scaffold feature FeatureName
-npm run scaffold page PageName
+npm run scaffold <Name>                              # same as "component"
+npm run scaffold component <Name>
+npm run scaffold feature <Name>
+npm run scaffold page <Feature> <Name>
+npm run scaffold feature-component <Feature> <Name>
 ```
 
-Generates a new folder with a JSX file, a companion CSS module, and an entry added to the relevant barrel `index.js` (kept alphabetized):
+| Type                | Creates                                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| `component`         | `packages/ui/src/components/<Name>/` and adds it to `packages/ui/src/components/index.js` |
+| `feature`           | `apps/web/src/features/<Name>/` with the skeleton above                                   |
+| `page`              | `apps/web/src/features/<Feature>/<Name>Page/` and adds it to the feature's `index.js`     |
+| `feature-component` | `apps/web/src/features/<Feature>/components/<Name>/`                                      |
 
-| Type        | Location                             | Barrel                                |
-| ----------- | ------------------------------------ | ------------------------------------- |
-| `component` | `packages/ui/src/components/<Name>/` | `packages/ui/src/components/index.js` |
-| `feature`   | `apps/web/src/features/<Name>/`      | `apps/web/src/features/index.js`      |
-| `page`      | `apps/web/src/pages/<Name>/`         | `apps/web/src/pages/index.js`         |
-
-Components get `className`/`variant` prop handling built in, since they're the design-system primitives other code composes. Features and pages get a plain component stub. Names must be PascalCase, and the command refuses to overwrite an existing directory.
+`feature` doesn't touch any shared file. It prints the two remaining steps: register the slice in `store/index.js` and add the route in `app/router.jsx`. Components get `className`/`variant` prop handling built in, since they're the design-system primitives other code composes. Names must be PascalCase, and the command refuses to overwrite an existing directory.
 
 ## Building locally
 

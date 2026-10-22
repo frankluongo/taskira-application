@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router";
-import { useAuth } from "@/services/auth";
-import { supabase } from "@/services/supabase";
+import { signInWithPassword, useAuth } from "@/services/auth";
 import { Button, Form, Input } from "@taskira/ui";
 import css from "./LoginPage.module.css";
 
@@ -55,7 +54,7 @@ export function LoginPage() {
     setError(null);
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { error } = await signInWithPassword({
       email,
       password,
     });

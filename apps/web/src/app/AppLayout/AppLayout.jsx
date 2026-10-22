@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router";
 import { useStore } from "@/store";
-import { useAuth } from "@/services/auth";
-import { supabase } from "@/services/supabase";
+import { signOut, useAuth } from "@/services/auth";
 import { Header, Main, Spinner } from "@taskira/ui";
 import { bootstrap } from "../bootstrap";
 import { AppNavigation } from "../AppNavigation/AppNavigation";
@@ -21,7 +20,7 @@ export function AppLayout() {
   if (user && !initialized) return <Spinner />;
 
   function handleLogout() {
-    supabase.auth.signOut();
+    signOut();
   }
 
   return (
