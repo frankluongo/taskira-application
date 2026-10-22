@@ -1,30 +1,13 @@
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useSortableItem } from "@/shared/dnd";
 import { useStore, PRIORITY_LABELS, INBOX_PROJECT_ID } from "@/lib/store";
-import { formatTime } from "@/lib/date";
+import { formatTime } from "@/shared/date";
+import { recurrenceLabel } from "@/shared/recurrence";
 import { TaskForm } from "../TaskForm/TaskForm";
 import { PriorityBadge } from "../PriorityBadge/PriorityBadge";
 import { Button, Modal, ToggleButton } from "@taskira/ui";
 import { IconBell, IconEdit, IconGrip, IconTrash } from "@taskira/ui/icons";
 import css from "./TaskItem.module.css";
-
-const RECURRENCE_LABELS = {
-  daily: "Daily",
-  weekly: "Weekly",
-  monthly: "Monthly",
-  yearly: "Yearly",
-};
-
-function recurrenceLabel(value) {
-  if (!value) return null;
-  if (RECURRENCE_LABELS[value]) return RECURRENCE_LABELS[value];
-  if (value.startsWith("custom:")) {
-    const [, n, unit] = value.split(":");
-    return `Every ${n} ${unit}`;
-  }
-  return null;
-}
 
 export function TaskItem({ task, subtasks = [] }) {
   const { completeTask, updateTask, deleteTask, addTask } = useStore();
@@ -33,19 +16,7 @@ export function TaskItem({ task, subtasks = [] }) {
   const [subtaskName, setSubtaskName] = useState("");
   const [expanded, setExpanded] = useState(true);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(task.id);
 
   function addSubtask(e) {
     e.preventDefault();
@@ -64,7 +35,7 @@ export function TaskItem({ task, subtasks = [] }) {
   return (
     <div ref={setNodeRef} style={style} className={css.item}>
       <div className={css.row}>
-        <button {...attributes} {...listeners} className={css.grip}>
+        <button {...handleProps} className={css.grip}>
           <IconGrip />
         </button>
 

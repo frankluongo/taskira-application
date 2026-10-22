@@ -1,16 +1,12 @@
 import { useState } from "react";
 import { INBOX_PROJECT_ID } from "@/lib/store";
+import {
+  RECURRENCE_UNITS,
+  parseRecurrence,
+  serializeRecurrence,
+  supportsRepeatFrom,
+} from "@/shared/recurrence";
 import { Button, FieldsRow, Form, Input, Select } from "@taskira/ui";
-
-function parseRecurrence(value) {
-  if (!value)
-    return { recurrence: "", customInterval: "3", customUnit: "months" };
-  if (value.startsWith("custom:")) {
-    const [, n, unit] = value.split(":");
-    return { recurrence: "custom", customInterval: n, customUnit: unit };
-  }
-  return { recurrence: value, customInterval: "3", customUnit: "months" };
-}
 
 export function TaskForm({
   initialValues = {},
@@ -32,19 +28,15 @@ export function TaskForm({
     initialValues.repeat_from ?? "due_date",
   );
 
-  const showRepeatFrom = ["weekly", "monthly", "yearly", "custom"].includes(
-    recurrence,
-  );
+  const showRepeatFrom = supportsRepeatFrom(recurrence);
 
   function handleSubmit(e) {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) return;
-    let recurrenceValue = allowRecurrence ? recurrence || null : null;
-    if (recurrenceValue === "custom") {
-      const n = parseInt(customInterval, 10);
-      recurrenceValue = n > 0 ? `custom:${n}:${customUnit}` : null;
-    }
+    const recurrenceValue = allowRecurrence
+      ? serializeRecurrence({ recurrence, customInterval, customUnit })
+      : null;
     onSubmit({
       name: trimmed,
       priority,
@@ -135,10 +127,11 @@ export function TaskForm({
             value={customUnit}
             onChange={(e) => setCustomUnit(e.target.value)}
           >
-            <option value="days">Days</option>
-            <option value="weeks">Weeks</option>
-            <option value="months">Months</option>
-            <option value="years">Years</option>
+            {RECURRENCE_UNITS.map((unit) => (
+              <option key={unit} value={unit}>
+                {unit[0].toUpperCase() + unit.slice(1)}
+              </option>
+            ))}
           </Select>
         </FieldsRow>
       )}

@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useSortableItem } from "@/shared/dnd";
 import { useStore } from "@/lib/store";
-import { formatTime } from "@/lib/date";
+import { formatTime } from "@/shared/date";
 import { HabitForm } from "../HabitForm/HabitForm";
 import { Button, Modal, ToggleButton } from "@taskira/ui/components";
 import { IconBell, IconEdit, IconGrip, IconTrash } from "@taskira/ui/icons";
@@ -27,19 +26,7 @@ export function HabitItem({ habit, dragMode = false }) {
   const [showEditModal, setShowEditModal] = useState(false);
   const done = isHabitDoneToday(habit.id);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: habit.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(habit.id);
 
   function toggle() {
     if (done) uncompleteHabit(habit.id);
@@ -50,7 +37,7 @@ export function HabitItem({ habit, dragMode = false }) {
     <div ref={setNodeRef} style={style} className={css.item}>
       <div className={css.row}>
         {dragMode && (
-          <button {...attributes} {...listeners} className={css.grip}>
+          <button {...handleProps} className={css.grip}>
             <IconGrip />
           </button>
         )}

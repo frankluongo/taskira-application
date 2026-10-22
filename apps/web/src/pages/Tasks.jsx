@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { arrayMove } from "@dnd-kit/sortable";
-import { getTodayString } from "@/lib/date";
-import { DragContext, TaskItem, TaskForm, usePageHeader } from "@/features";
+import { todayISO } from "@/shared/date";
+import { TaskItem, TaskForm, usePageHeader } from "@/features";
+import { DragContext } from "@/shared/dnd";
+import { reorderSubset } from "@/shared/reorder";
 import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
 import {
   Button,
@@ -22,18 +23,12 @@ export default function Tasks() {
 
   const topLevelTasks = tasks
     .filter((t) => !t.parent_task_id && t.project_id === INBOX_PROJECT_ID)
-    .filter((t) => !filterToday || t.due_date === getTodayString())
+    .filter((t) => !filterToday || t.due_date === todayISO())
     .sort((a, b) => b.priority - a.priority || a.sort_order - b.sort_order);
 
   function handleDragEnd({ active, over }) {
-    if (!over || active.id === over.id) return;
-    const oldIdx = topLevelTasks.findIndex((t) => t.id === active.id);
-    const newIdx = topLevelTasks.findIndex((t) => t.id === over.id);
-    const reordered = arrayMove(topLevelTasks, oldIdx, newIdx).map((t, i) => ({
-      ...t,
-      sort_order: i,
-    }));
-    reorderTasks(tasks.map((t) => reordered.find((r) => r.id === t.id) || t));
+    const next = reorderSubset(tasks, topLevelTasks, active.id, over?.id);
+    if (next) reorderTasks(next);
   }
 
   function handleAddTask(task) {

@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
-import { arrayMove } from "@dnd-kit/sortable";
-import { DragContext, TaskItem, TaskForm, usePageHeader } from "@/features";
+import { TaskItem, TaskForm, usePageHeader } from "@/features";
+import { DragContext } from "@/shared/dnd";
+import { reorderSubset } from "@/shared/reorder";
 import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
 import {
   Button,
@@ -43,14 +44,8 @@ export default function Projects() {
     .sort((a, b) => b.priority - a.priority || a.sort_order - b.sort_order);
 
   function handleDragEnd({ active, over }) {
-    if (!over || active.id === over.id) return;
-    const oldIdx = projectTasks.findIndex((t) => t.id === active.id);
-    const newIdx = projectTasks.findIndex((t) => t.id === over.id);
-    const reordered = arrayMove(projectTasks, oldIdx, newIdx).map((t, i) => ({
-      ...t,
-      sort_order: i,
-    }));
-    reorderTasks(tasks.map((t) => reordered.find((r) => r.id === t.id) || t));
+    const next = reorderSubset(tasks, projectTasks, active.id, over?.id);
+    if (next) reorderTasks(next);
   }
 
   function handleAddTask(task) {

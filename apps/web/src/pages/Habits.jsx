@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { arrayMove } from "@dnd-kit/sortable";
 
-import { DragContext, HabitForm, HabitItem } from "@/features";
+import { HABIT_GROUPS, HabitForm, HabitItem } from "@/features";
+import { DragContext } from "@/shared/dnd";
+import { reorderSubset } from "@/shared/reorder";
 
 import { useStore } from "@/lib/store";
 import {
@@ -20,8 +21,6 @@ import {
   Modal,
 } from "@taskira/ui";
 import css from "./Habits.module.css";
-
-const GROUPS = ["AM", "Misc", "PM"];
 
 export default function Habits() {
   const { habits, addHabit, reorderHabits, isHabitDoneToday, habitsDueToday } =
@@ -70,7 +69,7 @@ export default function Habits() {
       </Header>
       <Container>
         <FlexColumn>
-          {GROUPS.map((group) => {
+          {HABIT_GROUPS.map((group) => {
             const allGroupHabits = habits
               .filter((h) => h.group_name === group)
               .filter((h) => !filterToday || todayHabitIds.has(h.id))
@@ -127,14 +126,10 @@ export default function Habits() {
   );
 
   function handleDragEnd(group, { active, over }) {
-    if (!over || active.id === over.id) return;
+    // TODO(§8 #4): this should reorder visibleHabits (sorted and filtered),
+    // not the raw group list.
     const groupHabits = habits.filter((h) => h.group_name === group);
-    const oldIdx = groupHabits.findIndex((h) => h.id === active.id);
-    const newIdx = groupHabits.findIndex((h) => h.id === over.id);
-    const reordered = arrayMove(groupHabits, oldIdx, newIdx).map((h, i) => ({
-      ...h,
-      sort_order: i,
-    }));
-    reorderHabits(habits.map((h) => reordered.find((r) => r.id === h.id) || h));
+    const next = reorderSubset(habits, groupHabits, active.id, over?.id);
+    if (next) reorderHabits(next);
   }
 }

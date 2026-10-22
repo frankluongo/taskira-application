@@ -1,17 +1,7 @@
 import { useState } from "react";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
-import { format, addDays } from "date-fns";
+import { todayISO, tomorrowISO } from "@/shared/date";
+import { DragContext } from "@/shared/dnd";
+import { reorderSubset } from "@/shared/reorder";
 import { ChoreForm, ChoreItem, usePageHeader } from "@/features";
 import { useStore } from "@/lib/store";
 import {
@@ -25,22 +15,15 @@ import {
 } from "@taskira/ui";
 import css from "./Chores.module.css";
 
-const fmt = (d) => format(d, "yyyy-MM-dd");
-const todayStr = () => fmt(new Date());
-const tomorrowStr = () => fmt(addDays(new Date(), 1));
-
 export default function Chores() {
   const { chores, chore_lists, addChore, addChoreList, reorderChores } =
     useStore();
   const [showForm, setShowForm] = useState(false);
   const [filterToday, setFilterToday] = useState(false);
   const [activeList, setActiveList] = useState("all");
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-  );
 
-  const today = todayStr();
-  const tomorrow = tomorrowStr();
+  const today = todayISO();
+  const tomorrow = tomorrowISO();
 
   const byList = (e) => activeList === "all" || e.list_id === activeList;
 
@@ -67,14 +50,8 @@ export default function Chores() {
     .sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
   function handleDragEnd(subset, { active, over }) {
-    if (!over || active.id === over.id) return;
-    const oldIdx = subset.findIndex((e) => e.id === active.id);
-    const newIdx = subset.findIndex((e) => e.id === over.id);
-    const reordered = arrayMove(subset, oldIdx, newIdx).map((e, i) => ({
-      ...e,
-      sort_order: i,
-    }));
-    reorderChores(chores.map((e) => reordered.find((r) => r.id === e.id) || e));
+    const next = reorderSubset(chores, subset, active.id, over?.id);
+    if (next) reorderChores(next);
   }
 
   usePageHeader({
@@ -132,21 +109,18 @@ export default function Chores() {
       <ChoreSection
         title="Overdue"
         items={overdueChores}
-        sensors={sensors}
         onDragEnd={(e) => handleDragEnd(overdueChores, e)}
         showDate
       />
       <ChoreSection
         title="Today"
         items={todayChores}
-        sensors={sensors}
         onDragEnd={(e) => handleDragEnd(todayChores, e)}
       />
       {!filterToday && (
         <ChoreSection
           title="Tomorrow"
           items={tomorrowChores}
-          sensors={sensors}
           onDragEnd={(e) => handleDragEnd(tomorrowChores, e)}
         />
       )}
@@ -154,7 +128,6 @@ export default function Chores() {
         <ChoreSection
           title="Later"
           items={laterChores}
-          sensors={sensors}
           onDragEnd={(e) => handleDragEnd(laterChores, e)}
           showDate
         />
@@ -163,7 +136,6 @@ export default function Chores() {
         <ChoreSection
           title="Someday"
           items={somedayChores}
-          sensors={sensors}
           onDragEnd={(e) => handleDragEnd(somedayChores, e)}
         />
       )}
@@ -184,29 +156,20 @@ function ListTab({ label, active, onClick }) {
   );
 }
 
-function ChoreSection({ title, items, sensors, onDragEnd, showDate }) {
+function ChoreSection({ title, items, onDragEnd, showDate }) {
   if (items.length === 0) return null;
   return (
     <Section title={title}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={onDragEnd}
-      >
-        <SortableContext
-          items={items.map((e) => e.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <List>
-            {items.map((chore) => (
-              <div key={chore.id}>
-                {showDate && <p className={css.date}>{chore.due_date}</p>}
-                <ChoreItem chore={chore} />
-              </div>
-            ))}
-          </List>
-        </SortableContext>
-      </DndContext>
+      <DragContext items={items} onDragEnd={onDragEnd}>
+        <List>
+          {items.map((chore) => (
+            <div key={chore.id}>
+              {showDate && <p className={css.date}>{chore.due_date}</p>}
+              <ChoreItem chore={chore} />
+            </div>
+          ))}
+        </List>
+      </DragContext>
     </Section>
   );
 }

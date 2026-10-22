@@ -1,17 +1,13 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store";
+import {
+  RECURRENCE_UNITS,
+  parseRecurrence,
+  serializeRecurrence,
+  supportsRepeatFrom,
+} from "@/shared/recurrence";
 import { Button, Form, FieldsRow, Input, Select } from "@taskira/ui";
 import css from "./ChoreForm.module.css";
-
-function parseRecurrence(value) {
-  if (!value)
-    return { recurrence: "", customInterval: "3", customUnit: "months" };
-  if (value.startsWith("custom:")) {
-    const [, n, unit] = value.split(":");
-    return { recurrence: "custom", customInterval: n, customUnit: unit };
-  }
-  return { recurrence: value, customInterval: "3", customUnit: "months" };
-}
 
 export function ChoreForm({
   initialValues = {},
@@ -33,19 +29,17 @@ export function ChoreForm({
   );
   const [alarmTime, setAlarmTime] = useState(initialValues.alarm_time ?? "");
 
-  const showRepeatFrom = ["weekly", "monthly", "yearly", "custom"].includes(
-    recurrence,
-  );
+  const showRepeatFrom = supportsRepeatFrom(recurrence);
 
   function handleSubmit(e) {
     e.preventDefault();
     const trimmed = name.trim();
     if (!trimmed) return;
-    let recurrenceValue = recurrence || null;
-    if (recurrence === "custom") {
-      const n = parseInt(customInterval, 10);
-      recurrenceValue = n > 0 ? `custom:${n}:${customUnit}` : null;
-    }
+    const recurrenceValue = serializeRecurrence({
+      recurrence,
+      customInterval,
+      customUnit,
+    });
     onSubmit({
       name: trimmed,
       list_id: listId || null,
@@ -130,10 +124,11 @@ export function ChoreForm({
             value={customUnit}
             onChange={(e) => setCustomUnit(e.target.value)}
           >
-            <option value="days">Days</option>
-            <option value="weeks">Weeks</option>
-            <option value="months">Months</option>
-            <option value="years">Years</option>
+            {RECURRENCE_UNITS.map((unit) => (
+              <option key={unit} value={unit}>
+                {unit[0].toUpperCase() + unit.slice(1)}
+              </option>
+            ))}
           </Select>
         </FieldsRow>
       )}

@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { addDays, addWeeks, addMonths, addYears, format } from "date-fns";
 import { supabase } from "./supabase";
+import { todayISO } from "@/shared/date";
+import { nextRecurrenceDate } from "@/shared/recurrence";
 import {
   scheduleChoreNotification,
   cancelChoreNotification,
@@ -11,37 +12,6 @@ import {
 } from "./notifications";
 
 export const INBOX_PROJECT_ID = "00000000-0000-0000-0000-000000000001";
-
-const today = () => format(new Date(), "yyyy-MM-dd");
-
-function nextRecurrenceDate(chore) {
-  const base =
-    chore.repeat_from === "completion_date"
-      ? new Date()
-      : new Date(chore.due_date);
-  switch (chore.recurrence) {
-    case "weekly":
-      return format(addWeeks(base, 1), "yyyy-MM-dd");
-    case "monthly":
-      return format(addMonths(base, 1), "yyyy-MM-dd");
-    case "yearly":
-      return format(addYears(base, 1), "yyyy-MM-dd");
-    default: {
-      if (chore.recurrence?.startsWith("custom:")) {
-        const [, n, unit] = chore.recurrence.split(":");
-        const count = parseInt(n, 10);
-        if (unit === "days") return format(addDays(base, count), "yyyy-MM-dd");
-        if (unit === "weeks")
-          return format(addWeeks(base, count), "yyyy-MM-dd");
-        if (unit === "months")
-          return format(addMonths(base, count), "yyyy-MM-dd");
-        if (unit === "years")
-          return format(addYears(base, count), "yyyy-MM-dd");
-      }
-      return null;
-    }
-  }
-}
 
 export const useStore = create((set, get) => ({
   habits: [],
@@ -71,7 +41,7 @@ export const useStore = create((set, get) => ({
       supabase
         .from("habit_completions")
         .select("*")
-        .eq("completed_on", today()),
+        .eq("completed_on", todayISO()),
       supabase.from("chore_lists").select("*").order("sort_order"),
       supabase.from("chores").select("*").order("sort_order"),
       supabase.from("projects").select("*").order("sort_order"),
@@ -80,7 +50,7 @@ export const useStore = create((set, get) => ({
       supabase.from("checklist_sections").select("*").order("sort_order"),
       supabase.from("checklist_items").select("*").order("sort_order"),
     ]);
-    const d = today();
+    const d = todayISO();
     const expiredHabits = (habits || []).filter(
       (h) => h.end_date && h.end_date < d,
     );
@@ -188,7 +158,7 @@ export const useStore = create((set, get) => ({
   },
 
   completeHabit: async (habit_id) => {
-    const date = today();
+    const date = todayISO();
     if (
       get().habit_completions.some(
         (c) => c.habit_id === habit_id && c.completed_on === date,
@@ -201,7 +171,7 @@ export const useStore = create((set, get) => ({
   },
 
   uncompleteHabit: async (habit_id) => {
-    const date = today();
+    const date = todayISO();
     set((s) => ({
       habit_completions: s.habit_completions.filter(
         (c) => !(c.habit_id === habit_id && c.completed_on === date),
@@ -216,12 +186,12 @@ export const useStore = create((set, get) => ({
 
   isHabitDoneToday: (habit_id) =>
     get().habit_completions.some(
-      (c) => c.habit_id === habit_id && c.completed_on === today(),
+      (c) => c.habit_id === habit_id && c.completed_on === todayISO(),
     ),
 
   habitsDueToday: () => {
     const { habits, habit_completions } = get();
-    const d = today();
+    const d = todayISO();
     const dow = new Date().getDay();
     return habits.filter((h) => {
       if (
@@ -303,18 +273,7 @@ export const useStore = create((set, get) => ({
   completeChore: async (id) => {
     const chore = get().chores.find((e) => e.id === id);
     if (!chore) return;
-    if (chore.recurrence === "daily") {
-      const nextDate = format(addDays(new Date(), 1), "yyyy-MM-dd");
-      set((s) => ({
-        chores: s.chores.map((e) =>
-          e.id === id ? { ...e, due_date: nextDate } : e,
-        ),
-      }));
-      await supabase.from("chores").update({ due_date: nextDate }).eq("id", id);
-      await cancelChoreNotification(id);
-      const updated = get().chores.find((e) => e.id === id);
-      if (updated) scheduleChoreNotification(updated);
-    } else if (chore.recurrence && chore.due_date) {
+    if (chore.recurrence === "daily" || (chore.recurrence && chore.due_date)) {
       const nextDate = nextRecurrenceDate(chore);
       set((s) => ({
         chores: s.chores.map((e) =>
@@ -447,21 +406,7 @@ export const useStore = create((set, get) => ({
       return;
     }
 
-    if (task.recurrence === "daily") {
-      const nextDate = format(addDays(new Date(), 1), "yyyy-MM-dd");
-      set((s) => ({
-        tasks: s.tasks.map((t) =>
-          t.id === id ? { ...t, due_date: nextDate } : t,
-        ),
-      }));
-      await supabase.from("tasks").update({ due_date: nextDate }).eq("id", id);
-      await cancelTaskNotification(id);
-      const updated = get().tasks.find((t) => t.id === id);
-      if (updated) scheduleTaskNotification(updated);
-      return;
-    }
-
-    if (task.recurrence && task.due_date) {
+    if (task.recurrence === "daily" || (task.recurrence && task.due_date)) {
       const nextDate = nextRecurrenceDate(task);
       set((s) => ({
         tasks: s.tasks.map((t) =>
