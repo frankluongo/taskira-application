@@ -1,58 +1,42 @@
 import { useState } from "react";
-import { todayISO, tomorrowISO } from "@/shared/date";
-import { DragContext } from "@/shared/dnd";
-import { reorderSubset } from "@/shared/reorder";
-import { ChoreForm, ChoreItem } from "@/features";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { usePageHeader } from "@/app/PageHeader";
-import { useStore } from "@/lib/store";
-import {
-  Button,
-  Float,
-  IconPlus,
-  List,
-  Modal,
-  Scroller,
-  Section,
-} from "@taskira/ui";
-import css from "./Chores.module.css";
+import { todayISO, tomorrowISO } from "@/shared/date";
+import { reorderSubset } from "@/shared/reorder";
+import { Button, Float, IconPlus, Modal } from "@taskira/ui";
+import { groupChoresByDue } from "../chores.rules";
+import { ChoreForm } from "../components/ChoreForm/ChoreForm";
+import { ChoreListTabs } from "../components/ChoreListTabs/ChoreListTabs";
+import { ChoreSection } from "../components/ChoreSection/ChoreSection";
+import css from "./ChoresPage.module.css";
 
-export default function Chores() {
+export function ChoresPage() {
   const { chores, chore_lists, addChore, addChoreList, reorderChores } =
-    useStore();
+    useStore(
+      useShallow((s) => ({
+        chores: s.chores,
+        chore_lists: s.chore_lists,
+        addChore: s.addChore,
+        addChoreList: s.addChoreList,
+        reorderChores: s.reorderChores,
+      })),
+    );
   const [showForm, setShowForm] = useState(false);
   const [filterToday, setFilterToday] = useState(false);
   const [activeList, setActiveList] = useState("all");
 
-  const today = todayISO();
-  const tomorrow = tomorrowISO();
+  const groups = groupChoresByDue(chores, {
+    listId: activeList,
+    today: todayISO(),
+    tomorrow: tomorrowISO(),
+  });
 
-  const byList = (e) => activeList === "all" || e.list_id === activeList;
-
-  const overdueChores = chores
-    .filter((e) => e.due_date && e.due_date < today && e.recurrence !== "daily")
-    .filter(byList)
-    .sort((a, b) => a.due_date.localeCompare(b.due_date));
-  const todayChores = chores
-    .filter((e) => e.due_date === today)
-    .filter(byList)
-    .sort((a, b) => a.sort_order - b.sort_order);
-  const tomorrowChores = chores
-    .filter((e) => e.due_date === tomorrow)
-    .filter(byList)
-    .sort((a, b) => a.sort_order - b.sort_order);
-  const laterChores = chores
-    .filter((e) => e.due_date && e.due_date > tomorrow)
-    .filter(byList)
-    .sort((a, b) => a.due_date.localeCompare(b.due_date))
-    .slice(0, 5);
-  const somedayChores = chores
-    .filter((e) => !e.due_date)
-    .filter(byList)
-    .sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
-
-  function handleDragEnd(subset, { active, over }) {
-    const next = reorderSubset(chores, subset, active.id, over?.id);
-    if (next) reorderChores(next);
+  function dragHandler(subset) {
+    return ({ active, over }) => {
+      const next = reorderSubset(chores, subset, active.id, over?.id);
+      if (next) reorderChores(next);
+    };
   }
 
   usePageHeader({
@@ -86,59 +70,42 @@ export default function Chores() {
         />
       </Modal>
 
-      {chore_lists.length > 0 && (
-        <Scroller style={{ flex: "0 0 auto" }}>
-          <li>
-            <ListTab
-              label="All"
-              active={activeList === "all"}
-              onClick={() => setActiveList("all")}
-            />
-          </li>
-          {chore_lists.map((l) => (
-            <li key={l.id}>
-              <ListTab
-                label={l.name}
-                active={activeList === l.id}
-                onClick={() => setActiveList(l.id)}
-              />
-            </li>
-          ))}
-        </Scroller>
-      )}
+      <ChoreListTabs
+        lists={chore_lists}
+        activeList={activeList}
+        onSelect={setActiveList}
+      />
 
       <ChoreSection
         title="Overdue"
-        items={overdueChores}
-        onDragEnd={(e) => handleDragEnd(overdueChores, e)}
+        items={groups.overdue}
+        onDragEnd={dragHandler(groups.overdue)}
         showDate
       />
       <ChoreSection
         title="Today"
-        items={todayChores}
-        onDragEnd={(e) => handleDragEnd(todayChores, e)}
+        items={groups.today}
+        onDragEnd={dragHandler(groups.today)}
       />
       {!filterToday && (
-        <ChoreSection
-          title="Tomorrow"
-          items={tomorrowChores}
-          onDragEnd={(e) => handleDragEnd(tomorrowChores, e)}
-        />
-      )}
-      {!filterToday && (
-        <ChoreSection
-          title="Later"
-          items={laterChores}
-          onDragEnd={(e) => handleDragEnd(laterChores, e)}
-          showDate
-        />
-      )}
-      {!filterToday && (
-        <ChoreSection
-          title="Someday"
-          items={somedayChores}
-          onDragEnd={(e) => handleDragEnd(somedayChores, e)}
-        />
+        <>
+          <ChoreSection
+            title="Tomorrow"
+            items={groups.tomorrow}
+            onDragEnd={dragHandler(groups.tomorrow)}
+          />
+          <ChoreSection
+            title="Later"
+            items={groups.later}
+            onDragEnd={dragHandler(groups.later)}
+            showDate
+          />
+          <ChoreSection
+            title="Someday"
+            items={groups.someday}
+            onDragEnd={dragHandler(groups.someday)}
+          />
+        </>
       )}
       <Float>
         <Button variant="icon" onClick={() => setShowForm((x) => !x)}>
@@ -146,31 +113,5 @@ export default function Chores() {
         </Button>
       </Float>
     </>
-  );
-}
-
-function ListTab({ label, active, onClick }) {
-  return (
-    <Button variant="pill" aria-pressed={active} onClick={onClick}>
-      {label}
-    </Button>
-  );
-}
-
-function ChoreSection({ title, items, onDragEnd, showDate }) {
-  if (items.length === 0) return null;
-  return (
-    <Section title={title}>
-      <DragContext items={items} onDragEnd={onDragEnd}>
-        <List>
-          {items.map((chore) => (
-            <div key={chore.id}>
-              {showDate && <p className={css.date}>{chore.due_date}</p>}
-              <ChoreItem chore={chore} />
-            </div>
-          ))}
-        </List>
-      </DragContext>
-    </Section>
   );
 }

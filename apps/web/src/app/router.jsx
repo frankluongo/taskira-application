@@ -1,11 +1,11 @@
 import { createHashRouter } from "react-router";
 import Today from "@/pages/Today";
-import Chores from "@/pages/Chores";
 import KitchenSink from "@/pages/KitchenSink";
 import Tasks from "@/pages/Tasks";
 import Projects from "@/pages/Projects";
 import Checklists from "@/pages/Checklists";
 
+import { ChoresPage } from "@/features/Chores";
 import { HabitsPage } from "@/features/Habits";
 import { AppLayout } from "./AppLayout/AppLayout";
 import { ChecklistDetailRoute, LoginRoute, ProtectedRoute } from "@/pages";
@@ -20,7 +20,7 @@ export const router = createHashRouter([
         children: [
           { index: true, element: <Today /> },
           { path: "habits", element: <HabitsPage /> },
-          { path: "chores", element: <Chores /> },
+          { path: "chores", element: <ChoresPage /> },
           { path: "tasks", element: <Tasks /> },
           { path: "projects", element: <Projects /> },
           { path: "checklists", element: <Checklists /> },

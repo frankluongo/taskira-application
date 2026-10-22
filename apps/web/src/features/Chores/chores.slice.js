@@ -1,7 +1,6 @@
-import { supabase } from "@/services/supabase";
 import { cancelReminder, scheduleReminder } from "@/services/notifications";
-import { nextRecurrenceDate } from "@/shared/recurrence";
-import { choreReminder } from "./chores.rules";
+import * as api from "./chores.api";
+import { choreCompletionOutcome, choreReminder } from "./chores.rules";
 
 export const createChoresSlice = (set, get) => ({
   chore_lists: [],
@@ -14,12 +13,12 @@ export const createChoresSlice = (set, get) => ({
       sort_order: get().chore_lists.length,
     };
     set((s) => ({ chore_lists: [...s.chore_lists, row] }));
-    await supabase.from("chore_lists").insert(row);
+    await api.insertChoreList(row);
   },
 
   deleteChoreList: async (id) => {
     set((s) => ({ chore_lists: s.chore_lists.filter((l) => l.id !== id) }));
-    await supabase.from("chore_lists").delete().eq("id", id);
+    await api.deleteChoreList(id);
   },
 
   addChore: async (chore) => {
@@ -30,7 +29,7 @@ export const createChoresSlice = (set, get) => ({
       ...chore,
     };
     set((s) => ({ chores: [...s.chores, row] }));
-    await supabase.from("chores").insert(row);
+    await api.insertChore(row);
     scheduleReminder(choreReminder(row));
   },
 
@@ -38,7 +37,7 @@ export const createChoresSlice = (set, get) => ({
     set((s) => ({
       chores: s.chores.map((e) => (e.id === id ? { ...e, ...patch } : e)),
     }));
-    await supabase.from("chores").update(patch).eq("id", id);
+    await api.updateChore(id, patch);
     const updated = get().chores.find((e) => e.id === id);
     if (updated) {
       await cancelReminder(id);
@@ -48,39 +47,31 @@ export const createChoresSlice = (set, get) => ({
 
   deleteChore: async (id) => {
     set((s) => ({ chores: s.chores.filter((e) => e.id !== id) }));
-    await supabase.from("chores").delete().eq("id", id);
+    await api.deleteChore(id);
     cancelReminder(id);
   },
 
   reorderChores: async (ordered) => {
     set({ chores: ordered });
-    await Promise.all(
-      ordered.map((e) =>
-        supabase
-          .from("chores")
-          .update({ sort_order: e.sort_order })
-          .eq("id", e.id),
-      ),
-    );
+    await api.updateSortOrders(ordered);
   },
 
   completeChore: async (id) => {
     const chore = get().chores.find((e) => e.id === id);
     if (!chore) return;
-    if (chore.recurrence === "daily" || (chore.recurrence && chore.due_date)) {
-      const nextDate = nextRecurrenceDate(chore);
+    const outcome = choreCompletionOutcome(chore);
+    if (outcome.type === "reschedule") {
+      const { due_date } = outcome;
       set((s) => ({
-        chores: s.chores.map((e) =>
-          e.id === id ? { ...e, due_date: nextDate } : e,
-        ),
+        chores: s.chores.map((e) => (e.id === id ? { ...e, due_date } : e)),
       }));
-      await supabase.from("chores").update({ due_date: nextDate }).eq("id", id);
+      await api.updateChore(id, { due_date });
       await cancelReminder(id);
       const updated = get().chores.find((e) => e.id === id);
       if (updated) scheduleReminder(choreReminder(updated));
     } else {
       set((s) => ({ chores: s.chores.filter((e) => e.id !== id) }));
-      await supabase.from("chores").delete().eq("id", id);
+      await api.deleteChore(id);
       cancelReminder(id);
     }
   },
