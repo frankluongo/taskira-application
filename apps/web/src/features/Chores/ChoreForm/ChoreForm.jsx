@@ -28,10 +28,14 @@ export function ChoreForm({
   const [recurrence, setRecurrence] = useState(parsed.recurrence);
   const [customInterval, setCustomInterval] = useState(parsed.customInterval);
   const [customUnit, setCustomUnit] = useState(parsed.customUnit);
-  const [repeatFrom, setRepeatFrom] = useState(initialValues.repeat_from ?? "due_date");
+  const [repeatFrom, setRepeatFrom] = useState(
+    initialValues.repeat_from ?? "due_date",
+  );
   const [alarmTime, setAlarmTime] = useState(initialValues.alarm_time ?? "");
 
-  const showRepeatFrom = ["weekly", "monthly", "yearly", "custom"].includes(recurrence);
+  const showRepeatFrom = ["weekly", "monthly", "yearly", "custom"].includes(
+    recurrence,
+  );
 
   function handleSubmit(e) {
     e.preventDefault();

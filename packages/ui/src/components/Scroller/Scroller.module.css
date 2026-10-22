@@ -1,14 +1,14 @@
 @layer components {
-.list {
-  display: flex;
-  gap: 1rem;
+  .list {
+    display: flex;
+    gap: 1rem;
 
-  overflow-x: auto;
-}
+    overflow-x: auto;
+  }
 
-.scroller {
-  width: 100%;
+  .scroller {
+    width: 100%;
 
-  overflow-x: hidden;
-}
+    overflow-x: hidden;
+  }
 }

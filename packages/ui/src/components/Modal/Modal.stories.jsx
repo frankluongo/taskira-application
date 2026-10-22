@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Modal } from './Modal';
-import { Button } from '../Button/Button';
+import { useState } from "react";
+import { Modal } from "./Modal";
+import { Button } from "../Button/Button";
 
 export default {
-  title: 'Components/Modal',
+  title: "Components/Modal",
   component: Modal,
 };
 

@@ -1,17 +1,17 @@
 @layer features {
-.actions {
-  align-items: center;
-  display: flex;
-  gap: 0.75rem;
-}
+  .actions {
+    align-items: center;
+    display: flex;
+    gap: 0.75rem;
+  }
 
-.group + .group {
-  margin-block-start: 1.5rem;
-}
+  .group + .group {
+    margin-block-start: 1.5rem;
+  }
 
-.empty {
-  color: var(--theme-color-text-400);
-  font-size: 0.875rem;
-  font-style: italic;
-}
+  .empty {
+    color: var(--theme-color-text-400);
+    font-size: 0.875rem;
+    font-style: italic;
+  }
 }

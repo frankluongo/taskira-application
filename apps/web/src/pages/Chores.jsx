@@ -14,7 +14,15 @@ import {
 import { format, addDays } from "date-fns";
 import { ChoreForm, ChoreItem, usePageHeader } from "@/features";
 import { useStore } from "@/lib/store";
-import { Button, Float, IconPlus, List, Modal, Scroller, Section } from "@taskira/ui";
+import {
+  Button,
+  Float,
+  IconPlus,
+  List,
+  Modal,
+  Scroller,
+  Section,
+} from "@taskira/ui";
 import css from "./Chores.module.css";
 
 const fmt = (d) => format(d, "yyyy-MM-dd");
@@ -66,9 +74,7 @@ export default function Chores() {
       ...e,
       sort_order: i,
     }));
-    reorderChores(
-      chores.map((e) => reordered.find((r) => r.id === e.id) || e),
-    );
+    reorderChores(chores.map((e) => reordered.find((r) => r.id === e.id) || e));
   }
 
   usePageHeader({

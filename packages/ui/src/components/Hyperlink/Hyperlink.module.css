@@ -1,33 +1,33 @@
 @layer components {
-.link {
-  text-decoration: none;
-}
+  .link {
+    text-decoration: none;
+  }
 
-.link.navigation {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 0.25rem;
-  padding-block: 0.75rem;
+  .link.navigation {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.25rem;
+    padding-block: 0.75rem;
 
-  color: var(--theme-color-text-400);
-  font-size: 0.75rem;
+    color: var(--theme-color-text-400);
+    font-size: 0.75rem;
 
-  transition: color 150ms ease;
-}
+    transition: color 150ms ease;
+  }
 
-.link.navigation[class*="active"] {
-  color: var(--theme-color-accent-500);
-}
-
-.link.navigation svg {
-  height: 1.5rem;
-}
-
-@media (hover: hover) {
-  .link.navigation:hover {
+  .link.navigation[class*="active"] {
     color: var(--theme-color-accent-500);
   }
-}
+
+  .link.navigation svg {
+    height: 1.5rem;
+  }
+
+  @media (hover: hover) {
+    .link.navigation:hover {
+      color: var(--theme-color-accent-500);
+    }
+  }
 }

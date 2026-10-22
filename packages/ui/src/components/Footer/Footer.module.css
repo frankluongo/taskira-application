@@ -1,8 +1,8 @@
 @layer components {
-.footer.site {
-  padding-block-end: calc(env(safe-area-inset-bottom) + 1rem);
+  .footer.site {
+    padding-block-end: calc(env(safe-area-inset-bottom) + 1rem);
 
-  background-color: var(--theme-color-background-300);
-  border-top: 1px solid var(--theme-color-border-500);
-}
+    background-color: var(--theme-color-background-300);
+    border-top: 1px solid var(--theme-color-border-500);
+  }
 }

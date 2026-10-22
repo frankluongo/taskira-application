@@ -1,14 +1,14 @@
 @layer components {
-.float {
-  position: fixed;
-  z-index: 100;
-}
+  .float {
+    position: fixed;
+    z-index: 100;
+  }
 
-.float.bottom {
-  bottom: calc(env(safe-area-inset-bottom) + 7rem);
-}
+  .float.bottom {
+    bottom: calc(env(safe-area-inset-bottom) + 7rem);
+  }
 
-.float.right {
-  right: calc(env(safe-area-inset-right) + 1rem);
-}
+  .float.right {
+    right: calc(env(safe-area-inset-right) + 1rem);
+  }
 }

@@ -1,6 +1,13 @@
 import { getTodayString } from "@/lib/date";
 import { useStore } from "@/lib/store";
-import { FlexColumn, Heading, List, Section, Text, ToggleButton } from "@taskira/ui";
+import {
+  FlexColumn,
+  Heading,
+  List,
+  Section,
+  Text,
+  ToggleButton,
+} from "@taskira/ui";
 import { PriorityBadge, usePageHeader } from "@/features";
 import { HABIT_GROUPS } from "@/features/Habits";
 import css from "./Today.module.css";
