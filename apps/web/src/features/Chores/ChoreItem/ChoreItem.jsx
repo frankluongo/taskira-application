@@ -26,8 +26,7 @@ function recurrenceLabel(value) {
 }
 
 export function ChoreItem({ chore }) {
-  const { completeChore, updateChore, deleteChore, chore_lists } =
-    useStore();
+  const { completeChore, updateChore, deleteChore, chore_lists } = useStore();
   const [showEditModal, setShowEditModal] = useState(false);
 
   const {
@@ -53,13 +52,18 @@ export function ChoreItem({ chore }) {
           <IconGrip />
         </button>
 
-        <ToggleButton variant="square" onClick={() => completeChore(chore.id)} />
+        <ToggleButton
+          variant="square"
+          onClick={() => completeChore(chore.id)}
+        />
 
         <div className={css.body}>
           <span className={css.name}>{chore.name}</span>
           <p className={css.meta}>
             {list && <span className={css.list}>{list.name}</span>}
-            {chore.recurrence && <span>{recurrenceLabel(chore.recurrence)}</span>}
+            {chore.recurrence && (
+              <span>{recurrenceLabel(chore.recurrence)}</span>
+            )}
             {chore.alarm_time && (
               <span className={css.alarm}>
                 <IconBell />

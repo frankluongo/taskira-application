@@ -81,7 +81,9 @@ export function TaskItem({ task, subtasks = [] }) {
             <PriorityBadge priority={task.priority} />
             {task.due_date && <span className={css.due}>{task.due_date}</span>}
             {task.recurrence && (
-              <span className={css.due}>{recurrenceLabel(task.recurrence)}</span>
+              <span className={css.due}>
+                {recurrenceLabel(task.recurrence)}
+              </span>
             )}
             {task.alarm_time && (
               <span className={css.alarm}>

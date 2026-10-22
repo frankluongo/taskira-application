@@ -1,5 +1,5 @@
 @layer components {
-.navigation.footer {
-  display: flex;
-}
+  .navigation.footer {
+    display: flex;
+  }
 }

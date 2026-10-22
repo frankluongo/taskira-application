@@ -1,35 +1,35 @@
 @layer components {
-.header.page {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  padding-block: 1rem;
-  padding-inline: 1rem;
+  .header.page {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding-block: 1rem;
+    padding-inline: 1rem;
 
-  background-color: var(--theme-color-background-300);
-}
+    background-color: var(--theme-color-background-300);
+  }
 
-.header.site {
-  position: sticky;
-  z-index: 10;
+  .header.site {
+    position: sticky;
+    z-index: 10;
 
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  padding-block-end: 1rem;
-  padding-block-start: calc(env(safe-area-inset-top) + 1rem);
-  padding-inline: 1rem;
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding-block-end: 1rem;
+    padding-block-start: calc(env(safe-area-inset-top) + 1rem);
+    padding-inline: 1rem;
 
-  background-color: var(--theme-color-background-400);
-  border-bottom: 1px solid var(--theme-color-border-500);
-}
+    background-color: var(--theme-color-background-400);
+    border-bottom: 1px solid var(--theme-color-border-500);
+  }
 
-:global(.desktop-app) .header.site {
-  padding-block-start: 2.5rem;
-  -webkit-app-region: drag;
-}
+  :global(.desktop-app) .header.site {
+    padding-block-start: 2.5rem;
+    -webkit-app-region: drag;
+  }
 
-:global(.desktop-app) .header.site * {
-  -webkit-app-region: no-drag;
-}
+  :global(.desktop-app) .header.site * {
+    -webkit-app-region: no-drag;
+  }
 }

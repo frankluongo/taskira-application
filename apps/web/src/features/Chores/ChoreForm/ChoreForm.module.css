@@ -1,10 +1,10 @@
 @layer features {
-.submitRow {
-  display: flex;
-  gap: 0.5rem;
-}
+  .submitRow {
+    display: flex;
+    gap: 0.5rem;
+  }
 
-.submitButton {
-  flex: 1 1 0%;
-}
+  .submitButton {
+    flex: 1 1 0%;
+  }
 }

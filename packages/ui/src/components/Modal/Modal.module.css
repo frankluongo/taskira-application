@@ -1,51 +1,51 @@
 @layer components {
-.content {
-  padding: 1rem;
-}
+  .content {
+    padding: 1rem;
+  }
 
-.dialog {
-  position: fixed;
+  .dialog {
+    position: fixed;
 
-  display: none;
-  flex-direction: column;
-  gap: 0;
-  margin: auto;
-  max-height: calc(
-    100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2rem
-  );
-  max-width: 28rem;
-  width: calc(100% - 2rem);
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    margin: auto;
+    max-height: calc(
+      100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 2rem
+    );
+    max-width: 28rem;
+    width: calc(100% - 2rem);
 
-  color: inherit;
+    color: inherit;
 
-  background-color: var(--theme-color-background-500);
-  border-radius: 0.75rem;
-  border: none;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  overflow-y: auto;
-}
+    background-color: var(--theme-color-background-500);
+    border-radius: 0.75rem;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+  }
 
-.dialog[open] {
-  display: flex;
-}
+  .dialog[open] {
+    display: flex;
+  }
 
-.dialog::backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
+  .dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1rem;
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
 
-  border-bottom: 1px solid var(--theme-color-border-500);
-}
+    border-bottom: 1px solid var(--theme-color-border-500);
+  }
 
-.title {
-  font-size: 0.875rem;
-  font-weight: 700;
-}
+  .title {
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
 }

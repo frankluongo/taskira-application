@@ -1,15 +1,15 @@
 @layer components {
-.section + .section {
-  margin-block-start: 1.5rem;
-}
+  .section + .section {
+    margin-block-start: 1.5rem;
+  }
 
-.title {
-  color: var(--theme-color-text-400);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  .title {
+    color: var(--theme-color-text-400);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 
-  margin-block-end: 0.75rem;
-}
+    margin-block-end: 0.75rem;
+  }
 }

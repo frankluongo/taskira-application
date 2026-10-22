@@ -1,26 +1,26 @@
 @layer features {
-.empty {
-  color: var(--theme-color-text-400);
-  font-size: 0.875rem;
-  margin-block-start: 3rem;
-  text-align: center;
-}
+  .empty {
+    color: var(--theme-color-text-400);
+    font-size: 0.875rem;
+    margin-block-start: 3rem;
+    text-align: center;
+  }
 
-.headerRow {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  margin-block: 0.75rem;
-}
+  .headerRow {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-block: 0.75rem;
+  }
 
-.projectName {
-  font-size: 1.125rem;
-  font-weight: 600;
-}
+  .projectName {
+    font-size: 1.125rem;
+    font-weight: 600;
+  }
 
-.renameForm {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
+  .renameForm {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }

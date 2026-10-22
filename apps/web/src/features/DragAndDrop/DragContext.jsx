@@ -5,7 +5,10 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 
 export function DragContext({ items, onDragEnd, children }) {
   const sensors = useSensors(

@@ -1,24 +1,24 @@
 @layer features {
-.siteTitle {
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.pageTitle {
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.signOut {
-  color: var(--theme-color-text-400);
-  font-size: 0.875rem;
-
-  transition: color 150ms ease-in-out;
-}
-
-@media (hover: hover) {
-  .signOut:hover {
-    color: var(--theme-color-text-500);
+  .siteTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
   }
-}
+
+  .pageTitle {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .signOut {
+    color: var(--theme-color-text-400);
+    font-size: 0.875rem;
+
+    transition: color 150ms ease-in-out;
+  }
+
+  @media (hover: hover) {
+    .signOut:hover {
+      color: var(--theme-color-text-500);
+    }
+  }
 }

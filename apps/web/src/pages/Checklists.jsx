@@ -2,7 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useStore } from "@/lib/store";
 import { usePageHeader } from "@/features";
-import { Button, Float, IconPlus, IconTrash, List, Modal, Input, Form } from "@taskira/ui";
+import {
+  Button,
+  Float,
+  IconPlus,
+  IconTrash,
+  List,
+  Modal,
+  Input,
+  Form,
+} from "@taskira/ui";
 import css from "./Checklists.module.css";
 
 export default function Checklists() {
@@ -61,9 +70,7 @@ export default function Checklists() {
         })}
       </List>
 
-      {sorted.length === 0 && (
-        <p className={css.empty}>No checklists yet.</p>
-      )}
+      {sorted.length === 0 && <p className={css.empty}>No checklists yet.</p>}
 
       <Modal
         open={showAddModal}

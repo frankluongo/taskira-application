@@ -1,81 +1,81 @@
 @layer features {
-.row {
-  align-items: center;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
+  .row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
 
-.row + .row {
-  margin-block-start: 0.75rem;
-}
+  .row + .row {
+    margin-block-start: 0.75rem;
+  }
 
-.stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-.swatchGrid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
-}
+  .swatchGrid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  }
 
-.swatchGrid + .swatchGrid {
-  margin-block-start: 1rem;
-}
+  .swatchGrid + .swatchGrid {
+    margin-block-start: 1rem;
+  }
 
-.swatch {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-}
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
 
-.swatchColor {
-  border-radius: 0.5rem;
-  border: 1px solid var(--theme-color-border-500);
-  height: 3rem;
-  width: 100%;
-}
+  .swatchColor {
+    border-radius: 0.5rem;
+    border: 1px solid var(--theme-color-border-500);
+    height: 3rem;
+    width: 100%;
+  }
 
-.swatchLabel {
-  color: var(--theme-color-text-400);
-  font-size: 0.6875rem;
-  overflow-wrap: anywhere;
-}
+  .swatchLabel {
+    color: var(--theme-color-text-400);
+    font-size: 0.6875rem;
+    overflow-wrap: anywhere;
+  }
 
-.listItem {
-  padding-block: 0.75rem;
-}
+  .listItem {
+    padding-block: 0.75rem;
+  }
 
-.spinnerBox {
-  height: 4rem;
-  position: relative;
-}
+  .spinnerBox {
+    height: 4rem;
+    position: relative;
+  }
 
-.iconGrid {
-  display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
-}
+  .iconGrid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  }
 
-.iconCell {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+  .iconCell {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-.iconPreview {
-  color: var(--theme-color-text-500);
-  height: 1.5rem;
-  width: 1.5rem;
-}
+  .iconPreview {
+    color: var(--theme-color-text-500);
+    height: 1.5rem;
+    width: 1.5rem;
+  }
 
-.iconLabel {
-  color: var(--theme-color-text-400);
-  font-size: 0.625rem;
-  text-align: center;
-}
+  .iconLabel {
+    color: var(--theme-color-text-400);
+    font-size: 0.625rem;
+    text-align: center;
+  }
 }

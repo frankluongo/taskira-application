@@ -1,11 +1,11 @@
 @layer components {
-.main {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  flex: 1 1 0%;
-  width: 100%;
+  .main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    flex: 1 1 0%;
+    width: 100%;
 
-  overflow-y: auto;
-}
+    overflow-y: auto;
+  }
 }

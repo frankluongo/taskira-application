@@ -1,12 +1,12 @@
-import { Input } from './Input';
+import { Input } from "./Input";
 
 export default {
-  title: 'Components/Input',
+  title: "Components/Input",
   component: Input,
   args: {
-    id: 'example-input',
-    label: 'Label',
-    placeholder: 'Type something…',
+    id: "example-input",
+    label: "Label",
+    placeholder: "Type something…",
   },
 };
 

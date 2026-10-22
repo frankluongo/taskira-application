@@ -17,6 +17,18 @@
     "cap:sync": "npm run build -w apps/web && npm run sync -w apps/ios",
     "storybook": "npm run storybook -w packages/ui",
     "deploy": "node scripts/deploy.js",
-    "scaffold": "node scripts/scaffold.js"
+    "scaffold": "node scripts/scaffold.js",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "test": "npm run test -w apps/web"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10"
   }
 }

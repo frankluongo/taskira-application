@@ -1,30 +1,30 @@
 @layer features {
-.row {
-  align-items: center;
-  cursor: pointer;
-  display: flex;
-  gap: 0.75rem;
-  padding-block: 0.75rem;
-}
+  .row {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    gap: 0.75rem;
+    padding-block: 0.75rem;
+  }
 
-.body {
-  flex: 1;
-}
+  .body {
+    flex: 1;
+  }
 
-.name {
-  font-size: 1rem;
-  font-weight: 600;
-}
+  .name {
+    font-size: 1rem;
+    font-weight: 600;
+  }
 
-.meta {
-  color: var(--theme-color-text-400);
-  font-size: 0.8125rem;
-}
+  .meta {
+    color: var(--theme-color-text-400);
+    font-size: 0.8125rem;
+  }
 
-.empty {
-  color: var(--theme-color-text-400);
-  font-size: 0.875rem;
-  margin-block-start: 3rem;
-  text-align: center;
-}
+  .empty {
+    color: var(--theme-color-text-400);
+    font-size: 0.875rem;
+    margin-block-start: 3rem;
+    text-align: center;
+  }
 }

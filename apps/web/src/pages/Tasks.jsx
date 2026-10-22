@@ -82,9 +82,7 @@ export default function Tasks() {
         </List>
       </DragContext>
 
-      {topLevelTasks.length === 0 && (
-        <p className={css.empty}>No tasks yet.</p>
-      )}
+      {topLevelTasks.length === 0 && <p className={css.empty}>No tasks yet.</p>}
 
       <Modal
         open={showAddModal}

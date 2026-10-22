@@ -1,36 +1,48 @@
 @layer features {
-.badge {
-  border-radius: 0.25rem;
-  padding: 0.125rem 0.375rem;
+  .badge {
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.375rem;
 
-  font-size: 0.75rem;
-  font-weight: 500;
+    font-size: 0.75rem;
+    font-weight: 500;
 
-  flex-shrink: 0;
-}
+    flex-shrink: 0;
+  }
 
-.p5 {
-  color: var(--color-strawberry-red);
-  background-color: color-mix(in srgb, var(--color-strawberry-red) 15%, transparent);
-}
+  .p5 {
+    color: var(--color-strawberry-red);
+    background-color: color-mix(
+      in srgb,
+      var(--color-strawberry-red) 15%,
+      transparent
+    );
+  }
 
-.p4 {
-  color: var(--color-royal-gold);
-  background-color: color-mix(in srgb, var(--color-royal-gold) 20%, transparent);
-}
+  .p4 {
+    color: var(--color-royal-gold);
+    background-color: color-mix(
+      in srgb,
+      var(--color-royal-gold) 20%,
+      transparent
+    );
+  }
 
-.p3 {
-  color: var(--color-turquoise-surf);
-  background-color: color-mix(in srgb, var(--color-turquoise-surf) 15%, transparent);
-}
+  .p3 {
+    color: var(--color-turquoise-surf);
+    background-color: color-mix(
+      in srgb,
+      var(--color-turquoise-surf) 15%,
+      transparent
+    );
+  }
 
-.p2 {
-  color: var(--color-emerald);
-  background-color: color-mix(in srgb, var(--color-emerald) 15%, transparent);
-}
+  .p2 {
+    color: var(--color-emerald);
+    background-color: color-mix(in srgb, var(--color-emerald) 15%, transparent);
+  }
 
-.p1 {
-  color: var(--theme-color-text-400);
-  background-color: var(--theme-color-background-300);
-}
+  .p1 {
+    color: var(--theme-color-text-400);
+    background-color: var(--theme-color-background-300);
+  }
 }
