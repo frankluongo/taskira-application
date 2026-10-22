@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useStore } from "@/lib/store";
+import { useStore } from "@/store";
 import {
   RECURRENCE_UNITS,
   parseRecurrence,
@@ -15,7 +15,7 @@ export function ChoreForm({
   submitLabel = "Save",
   onAddList,
 }) {
-  const { chore_lists } = useStore();
+  const chore_lists = useStore((s) => s.chore_lists);
   const parsed = parseRecurrence(initialValues.recurrence);
 
   const [name, setName] = useState(initialValues.name ?? "");

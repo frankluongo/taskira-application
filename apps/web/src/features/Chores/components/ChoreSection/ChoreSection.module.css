@@ -1,0 +1,7 @@
+@layer features {
+  .date {
+    color: var(--theme-color-text-400);
+    font-size: 0.75rem;
+    padding-block-start: 0.5rem;
+  }
+}

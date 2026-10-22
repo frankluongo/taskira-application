@@ -1,20 +1,35 @@
 import { useState } from "react";
 import { useSortableItem } from "@/shared/dnd";
-import { useStore } from "@/lib/store";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { formatTime } from "@/shared/date";
 import { recurrenceLabel } from "@/shared/recurrence";
 import { ChoreForm } from "../ChoreForm/ChoreForm";
-import { Button, Modal, ToggleButton } from "@taskira/ui";
-import { IconBell, IconEdit, IconGrip, IconTrash } from "@taskira/ui/icons";
+import {
+  Button,
+  IconBell,
+  IconEdit,
+  IconGrip,
+  IconTrash,
+  Modal,
+  ToggleButton,
+} from "@taskira/ui";
 import css from "./ChoreItem.module.css";
 
 export function ChoreItem({ chore }) {
-  const { completeChore, updateChore, deleteChore, chore_lists } = useStore();
+  const { completeChore, updateChore, deleteChore } = useStore(
+    useShallow((s) => ({
+      completeChore: s.completeChore,
+      updateChore: s.updateChore,
+      deleteChore: s.deleteChore,
+    })),
+  );
+  const list = useStore((s) =>
+    s.chore_lists.find((l) => l.id === chore.list_id),
+  );
   const [showEditModal, setShowEditModal] = useState(false);
 
   const { setNodeRef, style, handleProps } = useSortableItem(chore.id);
-
-  const list = chore_lists.find((l) => l.id === chore.list_id);
 
   return (
     <div ref={setNodeRef} style={style}>
