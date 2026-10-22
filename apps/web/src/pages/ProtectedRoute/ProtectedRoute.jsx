@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from "react-router";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/services/auth";
 import { Spinner } from "@taskira/ui";
 
 export function ProtectedRoute() {

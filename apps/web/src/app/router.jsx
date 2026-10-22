@@ -7,12 +7,12 @@ import Tasks from "@/pages/Tasks";
 import Projects from "@/pages/Projects";
 import Checklists from "@/pages/Checklists";
 
-import { Taskira } from "@/features";
+import { AppLayout } from "./AppLayout/AppLayout";
 import { ChecklistDetailRoute, LoginRoute, ProtectedRoute } from "@/pages";
 
 export const router = createHashRouter([
   {
-    element: <Taskira />,
+    element: <AppLayout />,
     children: [
       { path: "/login", element: <LoginRoute /> },
       {

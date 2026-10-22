@@ -2,7 +2,8 @@ import { useState } from "react";
 import { todayISO, tomorrowISO } from "@/shared/date";
 import { DragContext } from "@/shared/dnd";
 import { reorderSubset } from "@/shared/reorder";
-import { ChoreForm, ChoreItem, usePageHeader } from "@/features";
+import { ChoreForm, ChoreItem } from "@/features";
+import { usePageHeader } from "@/app/PageHeader";
 import { useStore } from "@/lib/store";
 import {
   Button,
