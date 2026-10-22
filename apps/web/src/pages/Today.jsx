@@ -1,4 +1,4 @@
-import { getTodayString } from "@/lib/date";
+import { formatDisplayDate, todayISO } from "@/shared/date";
 import { useStore } from "@/lib/store";
 import {
   FlexColumn,
@@ -22,7 +22,7 @@ export default function Today() {
     completeTask,
   } = useStore();
 
-  const today = getTodayString();
+  const today = todayISO();
   const habits = habitsDueToday();
   const todayChores = chores.filter((e) => e.due_date === today);
   const todayTasks = tasks
@@ -32,7 +32,7 @@ export default function Today() {
   const hasAnything =
     habits.length + todayChores.length + todayTasks.length > 0;
 
-  usePageHeader({ title: getTodayString("EEEE, MMM d") });
+  usePageHeader({ title: formatDisplayDate(new Date(), "EEEE, MMM d") });
 
   return (
     <>

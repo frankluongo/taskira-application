@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
-import { getTodayString } from "@/lib/date";
-import { DragContext, TaskItem, TaskForm, usePageHeader } from "@/features";
+import { todayISO } from "@/shared/date";
+import { TaskItem, TaskForm, usePageHeader } from "@/features";
+import { DragContext } from "@/shared/dnd";
 import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
 import {
   Button,
@@ -22,7 +23,7 @@ export default function Tasks() {
 
   const topLevelTasks = tasks
     .filter((t) => !t.parent_task_id && t.project_id === INBOX_PROJECT_ID)
-    .filter((t) => !filterToday || t.due_date === getTodayString())
+    .filter((t) => !filterToday || t.due_date === todayISO())
     .sort((a, b) => b.priority - a.priority || a.sort_order - b.sort_order);
 
   function handleDragEnd({ active, over }) {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useStore } from "@/lib/store";
-import { formatTime } from "@/lib/date";
+import { formatTime } from "@/shared/date";
 import { HabitForm } from "../HabitForm/HabitForm";
 import { Button, Modal, ToggleButton } from "@taskira/ui/components";
 import { IconBell, IconEdit, IconGrip, IconTrash } from "@taskira/ui/icons";

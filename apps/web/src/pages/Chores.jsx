@@ -11,7 +11,7 @@ import {
   verticalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { format, addDays } from "date-fns";
+import { todayISO, tomorrowISO } from "@/shared/date";
 import { ChoreForm, ChoreItem, usePageHeader } from "@/features";
 import { useStore } from "@/lib/store";
 import {
@@ -25,10 +25,6 @@ import {
 } from "@taskira/ui";
 import css from "./Chores.module.css";
 
-const fmt = (d) => format(d, "yyyy-MM-dd");
-const todayStr = () => fmt(new Date());
-const tomorrowStr = () => fmt(addDays(new Date(), 1));
-
 export default function Chores() {
   const { chores, chore_lists, addChore, addChoreList, reorderChores } =
     useStore();
@@ -39,8 +35,8 @@ export default function Chores() {
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
-  const today = todayStr();
-  const tomorrow = tomorrowStr();
+  const today = todayISO();
+  const tomorrow = tomorrowISO();
 
   const byList = (e) => activeList === "all" || e.list_id === activeList;
 

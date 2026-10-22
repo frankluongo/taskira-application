@@ -1,6 +1,5 @@
 export * from "./AppNavigation/AppNavigation";
 export * from "./Chores";
-export * from "./DragAndDrop";
 export * from "./Habits";
 export * from "./Taskira/PageHeaderContext";
 export * from "./Taskira/Taskira";
