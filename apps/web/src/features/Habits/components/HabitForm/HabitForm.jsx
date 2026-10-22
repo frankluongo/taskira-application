@@ -1,17 +1,11 @@
 import { useState } from "react";
 import { Button, FieldsRow, Form, Input, Select } from "@taskira/ui";
+import {
+  DAY_LABELS,
+  HABIT_GROUPS,
+  HABIT_RECURRENCE_OPTIONS,
+} from "../../habits.constants";
 import css from "./HabitForm.module.css";
-
-const GROUPS = ["AM", "Misc", "PM"];
-
-const RECURRENCE_OPTIONS = [
-  { value: "daily", label: "Daily" },
-  { value: "weekdays", label: "Weekdays" },
-  { value: "weekends", label: "Weekends" },
-  { value: "specific_days", label: "Specific days" },
-];
-
-const DAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 export function HabitForm({
   initialValues = {},
@@ -75,7 +69,7 @@ export function HabitForm({
           onChange={(e) => setGroup(e.target.value)}
           value={group}
         >
-          {GROUPS.map((g) => (
+          {HABIT_GROUPS.map((g) => (
             <option key={g} value={g}>
               {g}
             </option>
@@ -88,7 +82,7 @@ export function HabitForm({
           value={recurrence}
           onChange={(e) => setRecurrence(e.target.value)}
         >
-          {RECURRENCE_OPTIONS.map((o) => (
+          {HABIT_RECURRENCE_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
               {o.label}
             </option>

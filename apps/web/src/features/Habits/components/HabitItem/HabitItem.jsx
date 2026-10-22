@@ -1,30 +1,33 @@
 import { useState } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { useSortableItem } from "@/shared/dnd";
-import { useStore } from "@/lib/store";
 import { formatTime } from "@/shared/date";
+import {
+  Button,
+  IconBell,
+  IconEdit,
+  IconGrip,
+  IconTrash,
+  Modal,
+  ToggleButton,
+} from "@taskira/ui";
+import { HABIT_RECURRENCE_LABELS } from "../../habits.constants";
+import { useIsHabitDone } from "../../habits.selectors";
 import { HabitForm } from "../HabitForm/HabitForm";
-import { Button, Modal, ToggleButton } from "@taskira/ui/components";
-import { IconBell, IconEdit, IconGrip, IconTrash } from "@taskira/ui/icons";
-
 import css from "./HabitItem.module.css";
 
-const RECURRENCE_LABELS = {
-  daily: "Daily",
-  weekdays: "Weekdays",
-  weekends: "Weekends",
-  specific_days: "Specific days",
-};
-
 export function HabitItem({ habit, dragMode = false }) {
-  const {
-    completeHabit,
-    uncompleteHabit,
-    isHabitDoneToday,
-    updateHabit,
-    deleteHabit,
-  } = useStore();
+  const { completeHabit, uncompleteHabit, updateHabit, deleteHabit } = useStore(
+    useShallow((s) => ({
+      completeHabit: s.completeHabit,
+      uncompleteHabit: s.uncompleteHabit,
+      updateHabit: s.updateHabit,
+      deleteHabit: s.deleteHabit,
+    })),
+  );
   const [showEditModal, setShowEditModal] = useState(false);
-  const done = isHabitDoneToday(habit.id);
+  const done = useIsHabitDone(habit.id);
 
   const { setNodeRef, style, handleProps } = useSortableItem(habit.id);
 
@@ -49,7 +52,7 @@ export function HabitItem({ habit, dragMode = false }) {
             {habit.name}
           </span>
           <p className={css.meta}>
-            {RECURRENCE_LABELS[habit.recurrence]}
+            {HABIT_RECURRENCE_LABELS[habit.recurrence]}
             {habit.alarm_time && (
               <span className={css.alarm}>
                 <IconBell />

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   habitReminder,
+  isHabitDone,
   isHabitScheduledOn,
   nextHabitOccurrence,
   partitionExpiredHabits,
@@ -137,5 +138,18 @@ describe("partitionExpiredHabits", () => {
     const { live, expired } = partitionExpiredHabits(habits, "2026-10-21");
     expect(live.map((h) => h.id)).toEqual(["a", "c", "d"]);
     expect(expired.map((h) => h.id)).toEqual(["b"]);
+  });
+});
+
+describe("isHabitDone", () => {
+  const completions = [
+    { habit_id: "h1", completed_on: "2026-10-21" },
+    { habit_id: "h2", completed_on: "2026-10-20" },
+  ];
+
+  it("is true only for a completion on the given day", () => {
+    expect(isHabitDone(completions, "h1", "2026-10-21")).toBe(true);
+    expect(isHabitDone(completions, "h2", "2026-10-21")).toBe(false);
+    expect(isHabitDone(completions, "h3", "2026-10-21")).toBe(false);
   });
 });

@@ -1,3 +1,7 @@
-export * from "./components/HabitForm/HabitForm";
-export * from "./components/HabitItem/HabitItem";
+export * from "./HabitsPage/HabitsPage";
 export * from "./habits.constants";
+export {
+  getHabitsDueToday,
+  useHabitsDueToday,
+  useIsHabitDone,
+} from "./habits.selectors";
