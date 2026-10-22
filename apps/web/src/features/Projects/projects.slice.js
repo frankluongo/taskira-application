@@ -1,6 +1,6 @@
-import { supabase } from "@/services/supabase";
 import { cancelReminder } from "@/services/notifications";
-import { INBOX_PROJECT_ID } from "@/features/Tasks/tasks.constants";
+import { INBOX_PROJECT_ID } from "@/features/Tasks";
+import * as api from "./projects.api";
 
 export const createProjectsSlice = (set, get) => ({
   projects: [],
@@ -12,14 +12,14 @@ export const createProjectsSlice = (set, get) => ({
       sort_order: get().projects.length,
     };
     set((s) => ({ projects: [...s.projects, row] }));
-    await supabase.from("projects").insert(row);
+    await api.insertProject(row);
   },
 
   updateProject: async (id, patch) => {
     set((s) => ({
       projects: s.projects.map((p) => (p.id === id ? { ...p, ...patch } : p)),
     }));
-    await supabase.from("projects").update(patch).eq("id", id);
+    await api.updateProject(id, patch);
   },
 
   deleteProject: async (id) => {
@@ -29,7 +29,7 @@ export const createProjectsSlice = (set, get) => ({
         t.project_id === id ? { ...t, project_id: INBOX_PROJECT_ID } : t,
       ),
     }));
-    await supabase.from("projects").delete().eq("id", id);
+    await api.deleteProject(id);
   },
 
   completeProject: async (id) => {
@@ -49,14 +49,11 @@ export const createProjectsSlice = (set, get) => ({
       ),
     }));
 
-    await supabase.from("projects").update({ completed_at: now }).eq("id", id);
+    await api.updateProject(id, { completed_at: now });
     await Promise.all(
       projectTasks.map((t) => {
         cancelReminder(t.id);
-        return supabase
-          .from("tasks")
-          .update({ completed_at: now, recurrence: null })
-          .eq("id", t.id);
+        return api.completeProjectTask(t.id, now);
       }),
     );
   },

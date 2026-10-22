@@ -1,22 +1,30 @@
-import { useState, useRef } from "react";
-import { TaskItem, TaskForm } from "@/features/Tasks";
+import { useState } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { usePageHeader } from "@/app/PageHeader";
 import { DragContext } from "@/shared/dnd";
 import { reorderSubset } from "@/shared/reorder";
-import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
+import {
+  DEFAULT_PRIORITY,
+  TaskForm,
+  TaskItem,
+  getProjectTasks,
+  getSubtasks,
+} from "@/features/Tasks";
 import {
   Button,
   Float,
   IconCheckmark,
   IconPlus,
-  Input,
   List,
   Modal,
-  Scroller,
 } from "@taskira/ui";
-import css from "./Projects.module.css";
+import { getVisibleProjects } from "../projects.selectors";
+import { ProjectRenameForm } from "../components/ProjectRenameForm/ProjectRenameForm";
+import { ProjectTabs } from "../components/ProjectTabs/ProjectTabs";
+import css from "./ProjectsPage.module.css";
 
-export default function Projects() {
+export function ProjectsPage() {
   const {
     tasks,
     projects,
@@ -25,24 +33,29 @@ export default function Projects() {
     completeProject,
     addTask,
     reorderTasks,
-  } = useStore();
+  } = useStore(
+    useShallow((s) => ({
+      tasks: s.tasks,
+      projects: s.projects,
+      addProject: s.addProject,
+      updateProject: s.updateProject,
+      completeProject: s.completeProject,
+      addTask: s.addTask,
+      reorderTasks: s.reorderTasks,
+    })),
+  );
   const [activeProject, setActiveProject] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [renamingProject, setRenamingProject] = useState(null);
-  const [renameValue, setRenameValue] = useState("");
   const [dragMode] = useState(false);
 
-  const visibleProjects = projects
-    .filter((p) => showArchived || !p.completed_at)
-    .sort((a, b) => a.sort_order - b.sort_order);
+  const visibleProjects = getVisibleProjects(projects, { showArchived });
   const selectedProject = projects.find((p) => p.id === activeProject);
-
-  const projectTasks = tasks
-    .filter((t) => t.project_id !== INBOX_PROJECT_ID && !t.parent_task_id)
-    .filter((t) => activeProject === "all" || t.project_id === activeProject)
-    .filter((t) => showArchived || !t.completed_at)
-    .sort((a, b) => b.priority - a.priority || a.sort_order - b.sort_order);
+  const projectTasks = getProjectTasks(tasks, {
+    projectId: activeProject,
+    includeCompleted: showArchived,
+  });
 
   function handleDragEnd({ active, over }) {
     const next = reorderSubset(tasks, projectTasks, active.id, over?.id);
@@ -57,20 +70,6 @@ export default function Projects() {
   function handleAddProject() {
     const name = prompt("Project name?");
     if (name?.trim()) addProject(name.trim());
-  }
-
-  function openRename(project) {
-    setRenamingProject(project);
-    setRenameValue(project.name);
-  }
-
-  function handleRenameSubmit(e) {
-    e.preventDefault();
-    const trimmed = renameValue.trim();
-    if (trimmed && trimmed !== renamingProject.name) {
-      updateProject(renamingProject.id, { name: trimmed });
-    }
-    setRenamingProject(null);
   }
 
   function handleCompleteProject() {
@@ -96,30 +95,13 @@ export default function Projects() {
 
   return (
     <>
-      <Scroller style={{ flex: "0 0 auto" }}>
-        <li>
-          <ProjectTab
-            label="All"
-            active={activeProject === "all"}
-            onClick={() => setActiveProject("all")}
-          />
-        </li>
-        {visibleProjects.map((p) => (
-          <li key={p.id}>
-            <ProjectTab
-              label={p.completed_at ? `${p.name} ✓` : p.name}
-              active={activeProject === p.id}
-              onClick={() => setActiveProject(p.id)}
-              onLongPress={() => openRename(p)}
-            />
-          </li>
-        ))}
-        <li>
-          <Button variant="pill" onClick={handleAddProject}>
-            + Project
-          </Button>
-        </li>
-      </Scroller>
+      <ProjectTabs
+        projects={visibleProjects}
+        activeProject={activeProject}
+        onSelect={setActiveProject}
+        onRename={setRenamingProject}
+        onAdd={handleAddProject}
+      />
 
       {selectedProject && (
         <div className={css.headerRow}>
@@ -138,7 +120,7 @@ export default function Projects() {
             <TaskItem
               key={task.id}
               task={task}
-              subtasks={tasks.filter((t) => t.parent_task_id === task.id)}
+              subtasks={getSubtasks(tasks, task.id)}
               dragMode={dragMode}
             />
           ))}
@@ -149,30 +131,21 @@ export default function Projects() {
         <p className={css.empty}>No tasks here yet.</p>
       )}
 
-      {/* Rename project modal */}
       <Modal
         open={!!renamingProject}
         onClose={() => setRenamingProject(null)}
         title="Rename Project"
       >
-        <form onSubmit={handleRenameSubmit} className={css.renameForm}>
-          <Input
-            autoFocus
-            id="project-rename"
-            name="project-rename"
-            label="Project name"
-            showLabel={false}
-            value={renameValue}
-            onChange={(e) => setRenameValue(e.target.value)}
-            placeholder="Project name"
+        {renamingProject && (
+          <ProjectRenameForm
+            key={renamingProject.id}
+            project={renamingProject}
+            onRename={(id, name) => updateProject(id, { name })}
+            onDone={() => setRenamingProject(null)}
           />
-          <Button type="submit" variant="primary">
-            Save
-          </Button>
-        </form>
+        )}
       </Modal>
 
-      {/* Add task modal */}
       {selectedProject && !selectedProject.completed_at && (
         <>
           <Modal
@@ -181,7 +154,10 @@ export default function Projects() {
             title="Add Task"
           >
             <TaskForm
-              initialValues={{ priority: 3, project_id: selectedProject.id }}
+              initialValues={{
+                priority: DEFAULT_PRIORITY,
+                project_id: selectedProject.id,
+              }}
               allowRecurrence
               onSubmit={handleAddTask}
               submitLabel="Add Task"
@@ -200,42 +176,5 @@ export default function Projects() {
         </>
       )}
     </>
-  );
-}
-
-function ProjectTab({ label, active, onClick, onLongPress }) {
-  const pressTimer = useRef(null);
-  const longPressFired = useRef(false);
-
-  function handlePointerDown() {
-    if (!onLongPress) return;
-    longPressFired.current = false;
-    pressTimer.current = setTimeout(() => {
-      longPressFired.current = true;
-      onLongPress();
-    }, 500);
-  }
-
-  function handlePointerUp() {
-    clearTimeout(pressTimer.current);
-    pressTimer.current = null;
-  }
-
-  function handleClick() {
-    if (!longPressFired.current) onClick();
-    longPressFired.current = false;
-  }
-
-  return (
-    <Button
-      variant="pill"
-      aria-pressed={active}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-      onClick={handleClick}
-    >
-      {label}
-    </Button>
   );
 }

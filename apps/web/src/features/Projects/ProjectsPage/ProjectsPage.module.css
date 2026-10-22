@@ -17,10 +17,4 @@
     font-size: 1.125rem;
     font-weight: 600;
   }
-
-  .renameForm {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
 }
