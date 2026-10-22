@@ -8,7 +8,7 @@ import {
 import { DndProvider, DragContext, useSortableItem } from "@/shared/dnd";
 import { useStore } from "@/lib/store";
 import { moveWithin } from "@/shared/reorder";
-import { usePageHeader } from "@/features";
+import { usePageHeader } from "@/app/PageHeader";
 import {
   Button,
   IconCheckmark,

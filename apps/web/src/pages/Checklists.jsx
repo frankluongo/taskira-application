@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useStore } from "@/lib/store";
-import { usePageHeader } from "@/features";
+import { usePageHeader } from "@/app/PageHeader";
 import {
   Button,
   Float,

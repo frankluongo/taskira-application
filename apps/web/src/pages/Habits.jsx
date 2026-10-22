@@ -3,6 +3,7 @@ import { useState } from "react";
 import { HABIT_GROUPS, HabitForm, HabitItem } from "@/features";
 import { DragContext } from "@/shared/dnd";
 import { reorderSubset } from "@/shared/reorder";
+import { usePageHeader } from "@/app/PageHeader";
 
 import { useStore } from "@/lib/store";
 import {
@@ -11,8 +12,6 @@ import {
   Details,
   FlexColumn,
   Float,
-  Header,
-  Heading,
   IconCalendar,
   IconCheckmark,
   IconDrag,
@@ -20,7 +19,6 @@ import {
   List,
   Modal,
 } from "@taskira/ui";
-import css from "./Habits.module.css";
 
 export default function Habits() {
   const { habits, addHabit, reorderHabits, isHabitDoneToday, habitsDueToday } =
@@ -33,40 +31,43 @@ export default function Habits() {
     ? new Set(habitsDueToday().map((h) => h.id))
     : null;
 
+  usePageHeader({
+    title: "Habits",
+    action: (
+      <>
+        <Button
+          aria-label="Toggle filter today"
+          aria-pressed={filterToday}
+          onClick={() => setFilterToday((x) => !x)}
+          variant="icon slim secondary"
+          title="Toggle today filter"
+        >
+          <IconCalendar />
+        </Button>
+        <Button
+          aria-label="Toggle show completed habits"
+          aria-pressed={showCompleted}
+          onClick={() => setShowCompleted((x) => !x)}
+          variant="icon slim secondary"
+          title="Toggle show completed habits"
+        >
+          <IconCheckmark />
+        </Button>
+        <Button
+          aria-label="Toggle drag mode"
+          aria-pressed={dragMode}
+          onClick={() => setDragMode((x) => !x)}
+          variant="icon slim secondary"
+          title="Toggle drag mode"
+        >
+          <IconDrag />
+        </Button>
+      </>
+    ),
+  });
+
   return (
-    <FlexColumn>
-      <Header variant="page">
-        <Heading>Habits</Heading>
-        <div className={css.actions}>
-          <Button
-            aria-label="Toggle filter today"
-            aria-pressed={filterToday}
-            onClick={() => setFilterToday((x) => !x)}
-            variant="icon slim secondary"
-            title="Toggle today filter"
-          >
-            <IconCalendar />
-          </Button>
-          <Button
-            aria-label="Toggle show completed habits"
-            aria-pressed={showCompleted}
-            onClick={() => setShowCompleted((x) => !x)}
-            variant="icon slim secondary"
-            title="Toggle show completed habits"
-          >
-            <IconCheckmark />
-          </Button>
-          <Button
-            aria-label="Toggle drag mode"
-            aria-pressed={dragMode}
-            onClick={() => setDragMode((x) => !x)}
-            variant="icon slim secondary"
-            title="Toggle drag mode"
-          >
-            <IconDrag />
-          </Button>
-        </div>
-      </Header>
+    <>
       <Container>
         <FlexColumn>
           {HABIT_GROUPS.map((group) => {
@@ -122,7 +123,7 @@ export default function Habits() {
           />
         </Modal>
       </Container>
-    </FlexColumn>
+    </>
   );
 
   function handleDragEnd(group, { active, over }) {

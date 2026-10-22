@@ -12,14 +12,12 @@ import { choreReminder } from "@/features/Chores/chores.rules";
 import { taskReminder } from "@/features/Tasks/tasks.rules";
 import { Header, Main, Spinner } from "@taskira/ui";
 import { AppNavigation } from "../AppNavigation/AppNavigation";
-import { PageHeaderContext } from "./PageHeaderContext";
-import css from "./Taskira.module.css";
+import { PageHeader, PageHeaderContext } from "../PageHeader";
+import css from "./AppLayout.module.css";
 
-export function Taskira() {
+export function AppLayout() {
   const { initialize, initialized, chores, habits, tasks } = useStore();
   const { user } = useAuth();
-  // Stored but not rendered yet (spec §8 #1); Phase 2 renders it.
-  // eslint-disable-next-line no-unused-vars
   const [pageHeader, setPageHeader] = useState({ title: "", action: null });
 
   useEffect(() => {
@@ -41,28 +39,25 @@ export function Taskira() {
     supabase.auth.signOut();
   }
 
-  const outlet = (
-    <PageHeaderContext.Provider value={setPageHeader}>
-      <Outlet />
-    </PageHeaderContext.Provider>
-  );
-
-  if (!user) return outlet;
-
   return (
-    <>
-      <Header variant="site">
-        <h1 className={css.siteTitle}>Taskira</h1>
-        <button onClick={handleLogout} className={css.signOut}>
-          Sign out
-        </button>
-      </Header>
-      <Main>
-        <PageHeaderContext.Provider value={setPageHeader}>
-          <Outlet />
-        </PageHeaderContext.Provider>
-      </Main>
-      <AppNavigation />
-    </>
+    <PageHeaderContext.Provider value={setPageHeader}>
+      {user ? (
+        <>
+          <Header variant="site">
+            <h1 className={css.siteTitle}>Taskira</h1>
+            <button onClick={handleLogout} className={css.signOut}>
+              Sign out
+            </button>
+          </Header>
+          <Main>
+            <PageHeader {...pageHeader} />
+            <Outlet />
+          </Main>
+          <AppNavigation />
+        </>
+      ) : (
+        <Outlet />
+      )}
+    </PageHeaderContext.Provider>
   );
 }

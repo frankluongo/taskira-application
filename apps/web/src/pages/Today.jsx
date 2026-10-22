@@ -8,7 +8,8 @@ import {
   Text,
   ToggleButton,
 } from "@taskira/ui";
-import { PriorityBadge, usePageHeader } from "@/features";
+import { PriorityBadge } from "@/features";
+import { usePageHeader } from "@/app/PageHeader";
 import { HABIT_GROUPS } from "@/features/Habits";
 import css from "./Today.module.css";
 
