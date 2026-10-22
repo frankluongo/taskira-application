@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { HabitForm, HabitItem } from "@/features";
+import { HABIT_GROUPS, HabitForm, HabitItem } from "@/features";
 import { DragContext } from "@/shared/dnd";
 import { reorderSubset } from "@/shared/reorder";
 
@@ -21,8 +21,6 @@ import {
   Modal,
 } from "@taskira/ui";
 import css from "./Habits.module.css";
-
-const GROUPS = ["AM", "Misc", "PM"];
 
 export default function Habits() {
   const { habits, addHabit, reorderHabits, isHabitDoneToday, habitsDueToday } =
@@ -71,7 +69,7 @@ export default function Habits() {
       </Header>
       <Container>
         <FlexColumn>
-          {GROUPS.map((group) => {
+          {HABIT_GROUPS.map((group) => {
             const allGroupHabits = habits
               .filter((h) => h.group_name === group)
               .filter((h) => !filterToday || todayHabitIds.has(h.id))

@@ -1,16 +1,6 @@
 import { useState } from "react";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { todayISO, tomorrowISO } from "@/shared/date";
+import { DragContext } from "@/shared/dnd";
 import { reorderSubset } from "@/shared/reorder";
 import { ChoreForm, ChoreItem, usePageHeader } from "@/features";
 import { useStore } from "@/lib/store";
@@ -31,9 +21,6 @@ export default function Chores() {
   const [showForm, setShowForm] = useState(false);
   const [filterToday, setFilterToday] = useState(false);
   const [activeList, setActiveList] = useState("all");
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-  );
 
   const today = todayISO();
   const tomorrow = tomorrowISO();
@@ -122,21 +109,18 @@ export default function Chores() {
       <ChoreSection
         title="Overdue"
         items={overdueChores}
-        sensors={sensors}
         onDragEnd={(e) => handleDragEnd(overdueChores, e)}
         showDate
       />
       <ChoreSection
         title="Today"
         items={todayChores}
-        sensors={sensors}
         onDragEnd={(e) => handleDragEnd(todayChores, e)}
       />
       {!filterToday && (
         <ChoreSection
           title="Tomorrow"
           items={tomorrowChores}
-          sensors={sensors}
           onDragEnd={(e) => handleDragEnd(tomorrowChores, e)}
         />
       )}
@@ -144,7 +128,6 @@ export default function Chores() {
         <ChoreSection
           title="Later"
           items={laterChores}
-          sensors={sensors}
           onDragEnd={(e) => handleDragEnd(laterChores, e)}
           showDate
         />
@@ -153,7 +136,6 @@ export default function Chores() {
         <ChoreSection
           title="Someday"
           items={somedayChores}
-          sensors={sensors}
           onDragEnd={(e) => handleDragEnd(somedayChores, e)}
         />
       )}
@@ -174,29 +156,20 @@ function ListTab({ label, active, onClick }) {
   );
 }
 
-function ChoreSection({ title, items, sensors, onDragEnd, showDate }) {
+function ChoreSection({ title, items, onDragEnd, showDate }) {
   if (items.length === 0) return null;
   return (
     <Section title={title}>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={onDragEnd}
-      >
-        <SortableContext
-          items={items.map((e) => e.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <List>
-            {items.map((chore) => (
-              <div key={chore.id}>
-                {showDate && <p className={css.date}>{chore.due_date}</p>}
-                <ChoreItem chore={chore} />
-              </div>
-            ))}
-          </List>
-        </SortableContext>
-      </DndContext>
+      <DragContext items={items} onDragEnd={onDragEnd}>
+        <List>
+          {items.map((chore) => (
+            <div key={chore.id}>
+              {showDate && <p className={css.date}>{chore.due_date}</p>}
+              <ChoreItem chore={chore} />
+            </div>
+          ))}
+        </List>
+      </DragContext>
     </Section>
   );
 }

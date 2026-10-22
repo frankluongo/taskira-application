@@ -1,2 +1,3 @@
+export * from "./DndProvider";
 export * from "./DragContext";
-export * from "./useDragMode";
+export * from "./useSortableItem";

@@ -1,32 +1,29 @@
 import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
   SortableContext,
+  horizontalListSortingStrategy,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import { DndProvider } from "./DndProvider";
 
-export function DragContext({ items, onDragEnd, children }) {
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-  );
+const STRATEGIES = {
+  horizontal: horizontalListSortingStrategy,
+  vertical: verticalListSortingStrategy,
+};
 
+export function DragContext({
+  items,
+  onDragEnd,
+  strategy = "vertical",
+  children,
+}) {
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={onDragEnd}
-    >
+    <DndProvider onDragEnd={onDragEnd}>
       <SortableContext
         items={items.map((item) => item.id)}
-        strategy={verticalListSortingStrategy}
+        strategy={STRATEGIES[strategy]}
       >
         {children}
       </SortableContext>
-    </DndContext>
+    </DndProvider>
   );
 }

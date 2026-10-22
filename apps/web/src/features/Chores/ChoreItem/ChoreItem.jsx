@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useSortableItem } from "@/shared/dnd";
 import { useStore } from "@/lib/store";
 import { formatTime } from "@/shared/date";
 import { recurrenceLabel } from "@/shared/recurrence";
@@ -13,26 +12,14 @@ export function ChoreItem({ chore }) {
   const { completeChore, updateChore, deleteChore, chore_lists } = useStore();
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: chore.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(chore.id);
 
   const list = chore_lists.find((l) => l.id === chore.list_id);
 
   return (
     <div ref={setNodeRef} style={style}>
       <div className={css.row}>
-        <button {...attributes} {...listeners} className={css.grip}>
+        <button {...handleProps} className={css.grip}>
           <IconGrip />
         </button>
 

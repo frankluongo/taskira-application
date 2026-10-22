@@ -1,20 +1,11 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  useDroppable,
-} from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
-  horizontalListSortingStrategy,
-  useSortable,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { DndProvider, DragContext, useSortableItem } from "@/shared/dnd";
 import { useStore } from "@/lib/store";
 import { moveWithin } from "@/shared/reorder";
 import { usePageHeader } from "@/features";
@@ -67,10 +58,6 @@ export function ChecklistDetailRoute() {
   const ungroupedItems = items
     .filter((i) => !i.section_id)
     .sort((a, b) => a.sort_order - b.sort_order);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-  );
 
   usePageHeader(
     checklist
@@ -183,29 +170,20 @@ export function ChecklistDetailRoute() {
   return (
     <>
       {editing && sections.length > 1 && (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
+        <DragContext
+          items={sections}
           onDragEnd={handleSectionDragEnd}
+          strategy="horizontal"
         >
-          <SortableContext
-            items={sections.map((s) => s.id)}
-            strategy={horizontalListSortingStrategy}
-          >
-            <div className={css.sectionChips}>
-              {sections.map((s) => (
-                <SectionChip key={s.id} section={s} />
-              ))}
-            </div>
-          </SortableContext>
-        </DndContext>
+          <div className={css.sectionChips}>
+            {sections.map((s) => (
+              <SectionChip key={s.id} section={s} />
+            ))}
+          </div>
+        </DragContext>
       )}
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleItemDragEnd}
-      >
+      <DndProvider onDragEnd={handleItemDragEnd}>
         <ItemContainer
           containerId={containerKey(null)}
           items={ungroupedItems}
@@ -258,7 +236,7 @@ export function ChecklistDetailRoute() {
             />
           </div>
         ))}
-      </DndContext>
+      </DndProvider>
 
       {editing && (
         <Button
@@ -274,25 +252,12 @@ export function ChecklistDetailRoute() {
 }
 
 function SectionChip({ section }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(section.id);
   return (
     <button
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
+      {...handleProps}
       className={css.chip}
     >
       {section.name}
@@ -370,24 +335,12 @@ function ItemContainer({
 }
 
 function ChecklistItemRow({ item, editing, onToggle, onRename, onDelete }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(item.id);
 
   if (editing) {
     return (
       <div ref={setNodeRef} style={style} className={css.itemRow}>
-        <button {...attributes} {...listeners} className={css.grip}>
+        <button {...handleProps} className={css.grip}>
           <IconGrip />
         </button>
         <span
