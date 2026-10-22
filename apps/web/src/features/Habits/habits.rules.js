@@ -16,6 +16,12 @@ export function isHabitScheduledOn(habit, date) {
   return matches ? matches(date.getDay(), habit) : true;
 }
 
+export function isHabitDone(completions, habitId, today) {
+  return completions.some(
+    (c) => c.habit_id === habitId && c.completed_on === today,
+  );
+}
+
 // The next alarm time after now on a day the habit recurs, within a week.
 export function nextHabitOccurrence(habit, now = new Date()) {
   const [h, m] = habit.alarm_time.split(":").map(Number);

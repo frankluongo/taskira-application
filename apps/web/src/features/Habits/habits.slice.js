@@ -1,7 +1,7 @@
-import { supabase } from "@/services/supabase";
 import { cancelReminder, scheduleReminder } from "@/services/notifications";
 import { todayISO } from "@/shared/date";
-import { habitReminder } from "./habits.rules";
+import * as api from "./habits.api";
+import { habitReminder, isHabitDone } from "./habits.rules";
 
 export const createHabitsSlice = (set, get) => ({
   habits: [],
@@ -14,7 +14,7 @@ export const createHabitsSlice = (set, get) => ({
       ...habit,
     };
     set((s) => ({ habits: [...s.habits, row] }));
-    await supabase.from("habits").insert(row);
+    await api.insertHabit(row);
     scheduleReminder(habitReminder(row));
   },
 
@@ -22,7 +22,7 @@ export const createHabitsSlice = (set, get) => ({
     set((s) => ({
       habits: s.habits.map((h) => (h.id === id ? { ...h, ...patch } : h)),
     }));
-    await supabase.from("habits").update(patch).eq("id", id);
+    await api.updateHabit(id, patch);
     const updated = get().habits.find((h) => h.id === id);
     if (updated) {
       await cancelReminder(id);
@@ -35,33 +35,21 @@ export const createHabitsSlice = (set, get) => ({
       habits: s.habits.filter((h) => h.id !== id),
       habit_completions: s.habit_completions.filter((c) => c.habit_id !== id),
     }));
-    await supabase.from("habits").delete().eq("id", id);
+    await api.deleteHabit(id);
     cancelReminder(id);
   },
 
   reorderHabits: async (ordered) => {
     set({ habits: ordered });
-    await Promise.all(
-      ordered.map((h) =>
-        supabase
-          .from("habits")
-          .update({ sort_order: h.sort_order })
-          .eq("id", h.id),
-      ),
-    );
+    await api.updateSortOrders(ordered);
   },
 
   completeHabit: async (habit_id) => {
     const date = todayISO();
-    if (
-      get().habit_completions.some(
-        (c) => c.habit_id === habit_id && c.completed_on === date,
-      )
-    )
-      return;
+    if (isHabitDone(get().habit_completions, habit_id, date)) return;
     const row = { id: crypto.randomUUID(), habit_id, completed_on: date };
     set((s) => ({ habit_completions: [...s.habit_completions, row] }));
-    await supabase.from("habit_completions").insert(row);
+    await api.insertCompletion(row);
   },
 
   uncompleteHabit: async (habit_id) => {
@@ -71,37 +59,6 @@ export const createHabitsSlice = (set, get) => ({
         (c) => !(c.habit_id === habit_id && c.completed_on === date),
       ),
     }));
-    await supabase
-      .from("habit_completions")
-      .delete()
-      .eq("habit_id", habit_id)
-      .eq("completed_on", date);
-  },
-
-  isHabitDoneToday: (habit_id) =>
-    get().habit_completions.some(
-      (c) => c.habit_id === habit_id && c.completed_on === todayISO(),
-    ),
-
-  habitsDueToday: () => {
-    const { habits, habit_completions } = get();
-    const d = todayISO();
-    const dow = new Date().getDay();
-    return habits.filter((h) => {
-      if (
-        habit_completions.some(
-          (c) => c.habit_id === h.id && c.completed_on === d,
-        )
-      )
-        return false;
-      if (h.start_date && h.start_date > d) return false;
-      if (h.end_date && h.end_date < d) return false;
-      if (h.recurrence === "daily") return true;
-      if (h.recurrence === "weekdays") return dow >= 1 && dow <= 5;
-      if (h.recurrence === "weekends") return dow === 0 || dow === 6;
-      if (h.recurrence === "specific_days")
-        return h.recurrence_days?.includes(dow);
-      return true;
-    });
+    await api.deleteCompletion(habit_id, date);
   },
 });

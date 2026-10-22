@@ -10,21 +10,15 @@ import {
 } from "@taskira/ui";
 import { PriorityBadge } from "@/features";
 import { usePageHeader } from "@/app/PageHeader";
-import { HABIT_GROUPS } from "@/features/Habits";
+import { HABIT_GROUPS, useHabitsDueToday } from "@/features/Habits";
 import css from "./Today.module.css";
 
 export default function Today() {
-  const {
-    habitsDueToday,
-    completeHabit,
-    chores,
-    completeChore,
-    tasks,
-    completeTask,
-  } = useStore();
+  const { completeHabit, chores, completeChore, tasks, completeTask } =
+    useStore();
 
   const today = todayISO();
-  const habits = habitsDueToday();
+  const habits = useHabitsDueToday();
   const todayChores = chores.filter((e) => e.due_date === today);
   const todayTasks = tasks
     .filter((t) => !t.parent_task_id && !t.completed_at && t.due_date === today)

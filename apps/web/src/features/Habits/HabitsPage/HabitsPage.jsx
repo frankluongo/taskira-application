@@ -1,35 +1,44 @@
-import { useState } from "react";
-
-import { HABIT_GROUPS, HabitForm, HabitItem } from "@/features";
-import { DragContext } from "@/shared/dnd";
-import { reorderSubset } from "@/shared/reorder";
+import { useMemo, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { usePageHeader } from "@/app/PageHeader";
-
-import { useStore } from "@/lib/store";
+import { todayISO } from "@/shared/date";
+import { reorderSubset } from "@/shared/reorder";
 import {
   Button,
   Container,
-  Details,
   FlexColumn,
   Float,
   IconCalendar,
   IconCheckmark,
   IconDrag,
   IconPlus,
-  List,
   Modal,
 } from "@taskira/ui";
+import { HABIT_GROUPS } from "../habits.constants";
+import { getGroupHabits, useHabitsDueToday } from "../habits.selectors";
+import { HabitForm } from "../components/HabitForm/HabitForm";
+import { HabitGroup } from "../components/HabitGroup/HabitGroup";
 
-export default function Habits() {
-  const { habits, addHabit, reorderHabits, isHabitDoneToday, habitsDueToday } =
-    useStore();
+export function HabitsPage() {
+  const { habits, completions, addHabit, reorderHabits } = useStore(
+    useShallow((s) => ({
+      habits: s.habits,
+      completions: s.habit_completions,
+      addHabit: s.addHabit,
+      reorderHabits: s.reorderHabits,
+    })),
+  );
+  const habitsDueToday = useHabitsDueToday();
   const [showForm, setShowForm] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
   const [filterToday, setFilterToday] = useState(true);
   const [dragMode, setDragMode] = useState(false);
-  const todayHabitIds = filterToday
-    ? new Set(habitsDueToday().map((h) => h.id))
-    : null;
+  const dueTodayIds = useMemo(
+    () => (filterToday ? new Set(habitsDueToday.map((h) => h.id)) : null),
+    [filterToday, habitsDueToday],
+  );
+  const today = todayISO();
 
   usePageHeader({
     title: "Habits",
@@ -66,71 +75,60 @@ export default function Habits() {
     ),
   });
 
-  return (
-    <>
-      <Container>
-        <FlexColumn>
-          {HABIT_GROUPS.map((group) => {
-            const allGroupHabits = habits
-              .filter((h) => h.group_name === group)
-              .filter((h) => !filterToday || todayHabitIds.has(h.id))
-              .sort((a, b) => a.sort_order - b.sort_order);
-            if (allGroupHabits.length === 0 && !showForm) return null;
-            const visibleHabits = showCompleted
-              ? allGroupHabits
-              : allGroupHabits.filter((h) => !isHabitDoneToday(h.id));
-            return (
-              <Details key={group} summary={group}>
-                <DragContext
-                  items={visibleHabits}
-                  onDragEnd={(e) => handleDragEnd(group, e)}
-                >
-                  <List>
-                    {visibleHabits.map((habit) => (
-                      <HabitItem
-                        key={habit.id}
-                        habit={habit}
-                        dragMode={dragMode}
-                      />
-                    ))}
-                  </List>
-                </DragContext>
-              </Details>
-            );
-          })}
-        </FlexColumn>
-        <Float>
-          <Button
-            variant="icon"
-            aria-expanded={showForm}
-            aria-label="Add Habit"
-            onClick={() => setShowForm((x) => !x)}
-          >
-            <IconPlus />
-          </Button>
-        </Float>
-        <Modal
-          open={showForm}
-          onClose={() => setShowForm(false)}
-          title="Add Habit"
-        >
-          <HabitForm
-            onSubmit={(habit) => {
-              addHabit(habit);
-              setShowForm(false);
-            }}
-            submitLabel="Add Habit"
-          />
-        </Modal>
-      </Container>
-    </>
-  );
-
   function handleDragEnd(group, { active, over }) {
-    // TODO(§8 #4): this should reorder visibleHabits (sorted and filtered),
-    // not the raw group list.
+    // TODO(§8 #4): this should reorder the visible habits (sorted and
+    // filtered), not the raw group list.
     const groupHabits = habits.filter((h) => h.group_name === group);
     const next = reorderSubset(habits, groupHabits, active.id, over?.id);
     if (next) reorderHabits(next);
   }
+
+  return (
+    <Container>
+      <FlexColumn>
+        {HABIT_GROUPS.map((group) => {
+          const { all, visible } = getGroupHabits(habits, {
+            group,
+            dueTodayIds,
+            completions,
+            today,
+            showCompleted,
+          });
+          if (all.length === 0 && !showForm) return null;
+          return (
+            <HabitGroup
+              key={group}
+              group={group}
+              habits={visible}
+              dragMode={dragMode}
+              onDragEnd={(e) => handleDragEnd(group, e)}
+            />
+          );
+        })}
+      </FlexColumn>
+      <Float>
+        <Button
+          variant="icon"
+          aria-expanded={showForm}
+          aria-label="Add Habit"
+          onClick={() => setShowForm((x) => !x)}
+        >
+          <IconPlus />
+        </Button>
+      </Float>
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title="Add Habit"
+      >
+        <HabitForm
+          onSubmit={(habit) => {
+            addHabit(habit);
+            setShowForm(false);
+          }}
+          submitLabel="Add Habit"
+        />
+      </Modal>
+    </Container>
+  );
 }
