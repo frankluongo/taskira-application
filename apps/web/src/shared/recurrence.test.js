@@ -4,6 +4,7 @@ import {
   nextRecurrenceDate,
   parseRecurrence,
   recurrenceLabel,
+  rollDailyForward,
   serializeRecurrence,
   supportsRepeatFrom,
 } from "./recurrence";
@@ -142,5 +143,31 @@ describe("nextRecurrenceDate", () => {
       };
       expect(nextRecurrenceDate(item, now)).toBe("2026-11-05");
     });
+  });
+});
+
+describe("rollDailyForward", () => {
+  const today = "2026-10-21";
+
+  it("moves stale daily items to today", () => {
+    const items = [
+      { id: "a", recurrence: "daily", due_date: "2026-10-19" },
+      { id: "b", recurrence: "daily", due_date: today },
+      { id: "c", recurrence: "weekly", due_date: "2026-10-01" },
+      { id: "d", recurrence: "daily", due_date: null },
+    ];
+    const result = rollDailyForward(items, today);
+    expect(result.items.map((i) => i.due_date)).toEqual([
+      today,
+      today,
+      "2026-10-01",
+      null,
+    ]);
+    expect(result.stale.map((i) => i.id)).toEqual(["a"]);
+    expect(result.items[1]).toBe(items[1]);
+  });
+
+  it("returns no stale items when nothing is behind", () => {
+    expect(rollDailyForward([], today)).toEqual({ items: [], stale: [] });
   });
 });

@@ -80,3 +80,16 @@ export function nextRecurrenceDate(item, now = new Date()) {
     item.repeat_from === "completion_date" ? now : parseISO(item.due_date);
   return toISODate(add(base, step[0]));
 }
+
+// Daily items left with a past due date move to today. Returns the updated
+// list and the items that were stale.
+export function rollDailyForward(items, today) {
+  const isStale = (item) =>
+    item.recurrence === "daily" && item.due_date && item.due_date < today;
+  return {
+    items: items.map((item) =>
+      isStale(item) ? { ...item, due_date: today } : item,
+    ),
+    stale: items.filter(isStale),
+  };
+}
