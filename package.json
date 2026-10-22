@@ -20,7 +20,8 @@
     "scaffold": "node scripts/scaffold.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "npm run test -w apps/web"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

@@ -14,4 +14,8 @@ export default defineConfig({
     // @vitejs/plugin-react's Fast Refresh pick up its .jsx files at all.
     preserveSymlinks: false,
   },
+  test: {
+    include: ["src/**/*.test.js"],
+    environment: "node",
+  },
 });
