@@ -1,5 +1,7 @@
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
+import { usePageHeader } from "@/app/PageHeader";
 import { formatDisplayDate, todayISO } from "@/shared/date";
-import { useStore } from "@/lib/store";
 import {
   FlexColumn,
   Heading,
@@ -8,21 +10,27 @@ import {
   Text,
   ToggleButton,
 } from "@taskira/ui";
-import { PriorityBadge } from "@/features/Tasks";
-import { usePageHeader } from "@/app/PageHeader";
+import { getChoresDueOn } from "@/features/Chores";
 import { HABIT_GROUPS, useHabitsDueToday } from "@/features/Habits";
-import css from "./Today.module.css";
+import { PriorityBadge, getTasksDueOn } from "@/features/Tasks";
+import css from "./TodayPage.module.css";
 
-export default function Today() {
+export function TodayPage() {
   const { completeHabit, chores, completeChore, tasks, completeTask } =
-    useStore();
+    useStore(
+      useShallow((s) => ({
+        completeHabit: s.completeHabit,
+        chores: s.chores,
+        completeChore: s.completeChore,
+        tasks: s.tasks,
+        completeTask: s.completeTask,
+      })),
+    );
 
   const today = todayISO();
   const habits = useHabitsDueToday();
-  const todayChores = chores.filter((e) => e.due_date === today);
-  const todayTasks = tasks
-    .filter((t) => !t.parent_task_id && !t.completed_at && t.due_date === today)
-    .sort((a, b) => b.priority - a.priority);
+  const todayChores = getChoresDueOn(chores, today);
+  const todayTasks = getTasksDueOn(tasks, today);
 
   const hasAnything =
     habits.length + todayChores.length + todayTasks.length > 0;
