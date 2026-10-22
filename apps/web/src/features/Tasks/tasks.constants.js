@@ -7,3 +7,8 @@ export const PRIORITY_LABELS = {
   2: { label: "Low" },
   1: { label: "Someday" },
 };
+
+// Highest first, as shown in priority pickers.
+export const PRIORITIES = [5, 4, 3, 2, 1];
+
+export const DEFAULT_PRIORITY = 3;

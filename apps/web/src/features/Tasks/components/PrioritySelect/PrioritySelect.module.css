@@ -1,0 +1,12 @@
+@layer features {
+  .prioritySelect {
+    appearance: none;
+    background-color: transparent;
+    border: 1px solid var(--theme-color-border-500);
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.25rem;
+
+    color: inherit;
+    font-size: 0.75rem;
+  }
+}

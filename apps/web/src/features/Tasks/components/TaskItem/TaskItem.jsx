@@ -1,16 +1,34 @@
 import { useState } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { useSortableItem } from "@/shared/dnd";
-import { useStore, PRIORITY_LABELS, INBOX_PROJECT_ID } from "@/lib/store";
 import { formatTime } from "@/shared/date";
 import { recurrenceLabel } from "@/shared/recurrence";
-import { TaskForm } from "../TaskForm/TaskForm";
+import {
+  Button,
+  IconBell,
+  IconEdit,
+  IconGrip,
+  IconTrash,
+  Modal,
+  ToggleButton,
+} from "@taskira/ui";
+import { INBOX_PROJECT_ID } from "../../tasks.constants";
 import { PriorityBadge } from "../PriorityBadge/PriorityBadge";
-import { Button, Modal, ToggleButton } from "@taskira/ui";
-import { IconBell, IconEdit, IconGrip, IconTrash } from "@taskira/ui/icons";
+import { PrioritySelect } from "../PrioritySelect/PrioritySelect";
+import { TaskForm } from "../TaskForm/TaskForm";
 import css from "./TaskItem.module.css";
 
+// TODO(§8 #3): callers pass dragMode, but the grip always renders.
 export function TaskItem({ task, subtasks = [] }) {
-  const { completeTask, updateTask, deleteTask, addTask } = useStore();
+  const { completeTask, updateTask, deleteTask, addTask } = useStore(
+    useShallow((s) => ({
+      completeTask: s.completeTask,
+      updateTask: s.updateTask,
+      deleteTask: s.deleteTask,
+      addTask: s.addTask,
+    })),
+  );
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSubtaskForm, setShowSubtaskForm] = useState(false);
   const [subtaskName, setSubtaskName] = useState("");
@@ -152,21 +170,5 @@ export function TaskItem({ task, subtasks = [] }) {
         />
       </Modal>
     </div>
-  );
-}
-
-function PrioritySelect({ value, onChange }) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(Number(e.target.value))}
-      className={css.prioritySelect}
-    >
-      {[5, 4, 3, 2, 1].map((p) => (
-        <option key={p} value={p}>
-          {PRIORITY_LABELS[p].label}
-        </option>
-      ))}
-    </select>
   );
 }

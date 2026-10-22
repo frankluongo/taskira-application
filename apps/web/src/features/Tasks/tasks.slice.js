@@ -1,8 +1,6 @@
-import { supabase } from "@/services/supabase";
 import { cancelReminder, scheduleReminder } from "@/services/notifications";
-import { nextRecurrenceDate } from "@/shared/recurrence";
-import { INBOX_PROJECT_ID } from "./tasks.constants";
-import { taskReminder } from "./tasks.rules";
+import * as api from "./tasks.api";
+import { taskCompletionOutcome, taskReminder } from "./tasks.rules";
 
 export const createTasksSlice = (set, get) => ({
   tasks: [],
@@ -15,7 +13,7 @@ export const createTasksSlice = (set, get) => ({
       ...task,
     };
     set((s) => ({ tasks: [...s.tasks, row] }));
-    await supabase.from("tasks").insert(row);
+    await api.insertTask(row);
     scheduleReminder(taskReminder(row));
   },
 
@@ -23,7 +21,7 @@ export const createTasksSlice = (set, get) => ({
     set((s) => ({
       tasks: s.tasks.map((t) => (t.id === id ? { ...t, ...patch } : t)),
     }));
-    await supabase.from("tasks").update(patch).eq("id", id);
+    await api.updateTask(id, patch);
     const updated = get().tasks.find((t) => t.id === id);
     if (updated) {
       await cancelReminder(id);
@@ -35,56 +33,46 @@ export const createTasksSlice = (set, get) => ({
     set((s) => ({
       tasks: s.tasks.filter((t) => t.id !== id && t.parent_task_id !== id),
     }));
-    await supabase.from("tasks").delete().eq("id", id);
+    await api.deleteTask(id);
     cancelReminder(id);
   },
 
   reorderTasks: async (ordered) => {
     set({ tasks: ordered });
-    await Promise.all(
-      ordered.map((t) =>
-        supabase
-          .from("tasks")
-          .update({ sort_order: t.sort_order })
-          .eq("id", t.id),
-      ),
-    );
+    await api.updateSortOrders(ordered);
   },
 
   completeTask: async (id) => {
     const task = get().tasks.find((t) => t.id === id);
     if (!task) return;
+    const outcome = taskCompletionOutcome(task);
 
-    if (task.project_id === INBOX_PROJECT_ID) {
+    if (outcome.type === "delete") {
       set((s) => ({
         tasks: s.tasks.filter((t) => t.id !== id && t.parent_task_id !== id),
       }));
-      await supabase.from("tasks").delete().eq("id", id);
+      await api.deleteTask(id);
       cancelReminder(id);
       return;
     }
 
-    if (task.recurrence === "daily" || (task.recurrence && task.due_date)) {
-      const nextDate = nextRecurrenceDate(task);
+    if (outcome.type === "reschedule") {
+      const { due_date } = outcome;
       set((s) => ({
-        tasks: s.tasks.map((t) =>
-          t.id === id ? { ...t, due_date: nextDate } : t,
-        ),
+        tasks: s.tasks.map((t) => (t.id === id ? { ...t, due_date } : t)),
       }));
-      await supabase.from("tasks").update({ due_date: nextDate }).eq("id", id);
+      await api.updateTask(id, { due_date });
       await cancelReminder(id);
       const updated = get().tasks.find((t) => t.id === id);
       if (updated) scheduleReminder(taskReminder(updated));
       return;
     }
 
-    const now = new Date().toISOString();
+    const { completed_at } = outcome;
     set((s) => ({
-      tasks: s.tasks.map((t) =>
-        t.id === id ? { ...t, completed_at: now } : t,
-      ),
+      tasks: s.tasks.map((t) => (t.id === id ? { ...t, completed_at } : t)),
     }));
-    await supabase.from("tasks").update({ completed_at: now }).eq("id", id);
+    await api.updateTask(id, { completed_at });
     cancelReminder(id);
   },
 });

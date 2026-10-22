@@ -1,4 +1,4 @@
-import { PRIORITY_LABELS } from "@/lib/store";
+import { PRIORITY_LABELS } from "../../tasks.constants";
 import css from "./PriorityBadge.module.css";
 
 export function PriorityBadge({ priority }) {

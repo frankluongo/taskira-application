@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { todayISO } from "@/shared/date";
-import { TaskItem, TaskForm } from "@/features";
+import { useShallow } from "zustand/react/shallow";
+import { useStore } from "@/store";
 import { usePageHeader } from "@/app/PageHeader";
+import { todayISO } from "@/shared/date";
 import { DragContext } from "@/shared/dnd";
 import { reorderSubset } from "@/shared/reorder";
-import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
 import {
   Button,
   Float,
@@ -14,18 +14,28 @@ import {
   List,
   Modal,
 } from "@taskira/ui";
-import css from "./Tasks.module.css";
+import { DEFAULT_PRIORITY, INBOX_PROJECT_ID } from "../tasks.constants";
+import { getInboxTasks, getSubtasks } from "../tasks.selectors";
+import { TaskForm } from "../components/TaskForm/TaskForm";
+import { TaskItem } from "../components/TaskItem/TaskItem";
+import css from "./TasksPage.module.css";
 
-export default function Tasks() {
-  const { tasks, addTask, reorderTasks } = useStore();
+export function TasksPage() {
+  const { tasks, addTask, reorderTasks } = useStore(
+    useShallow((s) => ({
+      tasks: s.tasks,
+      addTask: s.addTask,
+      reorderTasks: s.reorderTasks,
+    })),
+  );
   const [showAddModal, setShowAddModal] = useState(false);
   const [filterToday, setFilterToday] = useState(false);
   const [dragMode, setDragMode] = useState(false);
 
-  const topLevelTasks = tasks
-    .filter((t) => !t.parent_task_id && t.project_id === INBOX_PROJECT_ID)
-    .filter((t) => !filterToday || t.due_date === todayISO())
-    .sort((a, b) => b.priority - a.priority || a.sort_order - b.sort_order);
+  const topLevelTasks = getInboxTasks(tasks, {
+    todayOnly: filterToday,
+    today: todayISO(),
+  });
 
   function handleDragEnd({ active, over }) {
     const next = reorderSubset(tasks, topLevelTasks, active.id, over?.id);
@@ -71,7 +81,7 @@ export default function Tasks() {
             <TaskItem
               key={task.id}
               task={task}
-              subtasks={tasks.filter((t) => t.parent_task_id === task.id)}
+              subtasks={getSubtasks(tasks, task.id)}
               dragMode={dragMode}
             />
           ))}
@@ -86,7 +96,10 @@ export default function Tasks() {
         title="Add Task"
       >
         <TaskForm
-          initialValues={{ priority: 3, project_id: INBOX_PROJECT_ID }}
+          initialValues={{
+            priority: DEFAULT_PRIORITY,
+            project_id: INBOX_PROJECT_ID,
+          }}
           onSubmit={handleAddTask}
           submitLabel="Add Task"
         />

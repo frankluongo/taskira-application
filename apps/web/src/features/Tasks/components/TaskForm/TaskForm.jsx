@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { INBOX_PROJECT_ID } from "@/lib/store";
 import {
   RECURRENCE_UNITS,
   parseRecurrence,
@@ -7,6 +6,12 @@ import {
   supportsRepeatFrom,
 } from "@/shared/recurrence";
 import { Button, FieldsRow, Form, Input, Select } from "@taskira/ui";
+import {
+  DEFAULT_PRIORITY,
+  INBOX_PROJECT_ID,
+  PRIORITIES,
+  PRIORITY_LABELS,
+} from "../../tasks.constants";
 
 export function TaskForm({
   initialValues = {},
@@ -17,7 +22,9 @@ export function TaskForm({
   const parsed = parseRecurrence(initialValues.recurrence);
 
   const [name, setName] = useState(initialValues.name ?? "");
-  const [priority, setPriority] = useState(initialValues.priority ?? 3);
+  const [priority, setPriority] = useState(
+    initialValues.priority ?? DEFAULT_PRIORITY,
+  );
   const projectId = initialValues.project_id ?? INBOX_PROJECT_ID;
   const [dueDate, setDueDate] = useState(initialValues.due_date ?? "");
   const [alarmTime, setAlarmTime] = useState(initialValues.alarm_time ?? "");
@@ -47,7 +54,7 @@ export function TaskForm({
       repeat_from: showRepeatFrom ? repeatFrom : "due_date",
     });
     setName(initialValues.name ?? "");
-    setPriority(initialValues.priority ?? 3);
+    setPriority(initialValues.priority ?? DEFAULT_PRIORITY);
     setDueDate(initialValues.due_date ?? "");
     setAlarmTime(initialValues.alarm_time ?? "");
     setRecurrence(parsed.recurrence);
@@ -72,9 +79,9 @@ export function TaskForm({
           value={priority}
           onChange={(e) => setPriority(Number(e.target.value))}
         >
-          {[5, 4, 3, 2, 1].map((p) => (
+          {PRIORITIES.map((p) => (
             <option key={p} value={p}>
-              {["", "Someday", "Low", "Medium", "High", "Critical"][p]}
+              {PRIORITY_LABELS[p].label}
             </option>
           ))}
         </Select>
