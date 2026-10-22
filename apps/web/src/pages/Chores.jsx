@@ -9,9 +9,9 @@ import {
 import {
   SortableContext,
   verticalListSortingStrategy,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { todayISO, tomorrowISO } from "@/shared/date";
+import { reorderSubset } from "@/shared/reorder";
 import { ChoreForm, ChoreItem, usePageHeader } from "@/features";
 import { useStore } from "@/lib/store";
 import {
@@ -63,14 +63,8 @@ export default function Chores() {
     .sort((a, b) => (a.created_at > b.created_at ? 1 : -1));
 
   function handleDragEnd(subset, { active, over }) {
-    if (!over || active.id === over.id) return;
-    const oldIdx = subset.findIndex((e) => e.id === active.id);
-    const newIdx = subset.findIndex((e) => e.id === over.id);
-    const reordered = arrayMove(subset, oldIdx, newIdx).map((e, i) => ({
-      ...e,
-      sort_order: i,
-    }));
-    reorderChores(chores.map((e) => reordered.find((r) => r.id === e.id) || e));
+    const next = reorderSubset(chores, subset, active.id, over?.id);
+    if (next) reorderChores(next);
   }
 
   usePageHeader({

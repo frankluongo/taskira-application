@@ -13,10 +13,10 @@ import {
   verticalListSortingStrategy,
   horizontalListSortingStrategy,
   useSortable,
-  arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useStore } from "@/lib/store";
+import { moveWithin } from "@/shared/reorder";
 import { usePageHeader } from "@/features";
 import {
   Button,
@@ -118,14 +118,8 @@ export function ChecklistDetailRoute() {
   }
 
   function handleSectionDragEnd({ active, over }) {
-    if (!over || active.id === over.id) return;
-    const oldIdx = sections.findIndex((s) => s.id === active.id);
-    const newIdx = sections.findIndex((s) => s.id === over.id);
-    const reordered = arrayMove(sections, oldIdx, newIdx).map((s, i) => ({
-      ...s,
-      sort_order: i,
-    }));
-    reorderSections(reordered);
+    const next = moveWithin(sections, active.id, over?.id);
+    if (next) reorderSections(next);
   }
 
   function handleItemDragEnd({ active, over }) {
