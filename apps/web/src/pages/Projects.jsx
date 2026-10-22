@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { TaskItem, TaskForm } from "@/features";
+import { TaskItem, TaskForm } from "@/features/Tasks";
 import { usePageHeader } from "@/app/PageHeader";
 import { DragContext } from "@/shared/dnd";
 import { reorderSubset } from "@/shared/reorder";
