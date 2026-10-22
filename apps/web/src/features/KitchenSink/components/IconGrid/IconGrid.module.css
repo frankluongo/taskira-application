@@ -1,0 +1,26 @@
+@layer features {
+  .iconGrid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
+  }
+
+  .iconCell {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .iconPreview {
+    color: var(--theme-color-text-500);
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+
+  .iconLabel {
+    color: var(--theme-color-text-400);
+    font-size: 0.625rem;
+    text-align: center;
+  }
+}

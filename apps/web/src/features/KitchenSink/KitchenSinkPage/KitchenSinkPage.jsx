@@ -6,19 +6,7 @@ import {
   FieldsRow,
   Form,
   Hyperlink,
-  IconBell,
-  IconCalendar,
-  IconCheckmark,
-  IconCheckmarkCircle,
-  IconChecklist,
-  IconChevronDown,
-  IconClipboard,
-  IconClose,
-  IconDrag,
   IconEdit,
-  IconFolder,
-  IconGrip,
-  IconList,
   IconPlus,
   IconTrash,
   Input,
@@ -29,49 +17,10 @@ import {
   Spinner,
   ToggleButton,
 } from "@taskira/ui";
+import { ICONS, PALETTE_TOKENS, THEME_TOKENS } from "../kitchenSink.constants";
+import { IconGrid } from "../components/IconGrid/IconGrid";
+import { SwatchGrid } from "../components/SwatchGrid/SwatchGrid";
 import css from "./KitchenSinkPage.module.css";
-
-const THEME_TOKENS = [
-  "--theme-color-accent-500",
-  "--theme-color-accent-100",
-  "--theme-color-on-accent",
-  "--theme-color-background-500",
-  "--theme-color-background-400",
-  "--theme-color-background-300",
-  "--theme-color-text-500",
-  "--theme-color-text-400",
-  "--theme-color-text-300",
-  "--theme-color-border-500",
-];
-
-const PALETTE_TOKENS = [
-  "--color-strawberry-red",
-  "--color-emerald",
-  "--color-royal-gold",
-  "--color-turquoise-surf",
-  "--color-black",
-  "--color-space-indigo",
-  "--color-platinum",
-  "--color-white",
-];
-
-const ICONS = {
-  IconBell,
-  IconCalendar,
-  IconCheckmark,
-  IconCheckmarkCircle,
-  IconChecklist,
-  IconChevronDown,
-  IconClipboard,
-  IconClose,
-  IconDrag,
-  IconEdit,
-  IconFolder,
-  IconGrip,
-  IconList,
-  IconPlus,
-  IconTrash,
-};
 
 export function KitchenSinkPage() {
   const [disclosureOpen, setDisclosureOpen] = useState(true);
@@ -106,31 +55,11 @@ export function KitchenSinkPage() {
   return (
     <>
       <Section title="Theme Colors">
-        <div className={css.swatchGrid}>
-          {THEME_TOKENS.map((token) => (
-            <div key={token} className={css.swatch}>
-              <div
-                className={css.swatchColor}
-                style={{ background: `var(${token})` }}
-              />
-              <code className={css.swatchLabel}>{token}</code>
-            </div>
-          ))}
-        </div>
+        <SwatchGrid tokens={THEME_TOKENS} />
       </Section>
 
       <Section title="Palette Colors">
-        <div className={css.swatchGrid}>
-          {PALETTE_TOKENS.map((token) => (
-            <div key={token} className={css.swatch}>
-              <div
-                className={css.swatchColor}
-                style={{ background: `var(${token})` }}
-              />
-              <code className={css.swatchLabel}>{token}</code>
-            </div>
-          ))}
-        </div>
+        <SwatchGrid tokens={PALETTE_TOKENS} />
       </Section>
 
       <Section title="Typography">
@@ -258,14 +187,7 @@ export function KitchenSinkPage() {
       </Section>
 
       <Section title="Icons">
-        <div className={css.iconGrid}>
-          {Object.entries(ICONS).map(([name, Icon]) => (
-            <div key={name} className={css.iconCell}>
-              <Icon className={css.iconPreview} />
-              <code className={css.iconLabel}>{name}</code>
-            </div>
-          ))}
-        </div>
+        <IconGrid icons={ICONS} />
       </Section>
     </>
   );
