@@ -3,6 +3,7 @@ import {
   habitReminder,
   isHabitScheduledOn,
   nextHabitOccurrence,
+  partitionExpiredHabits,
 } from "./habits.rules";
 
 // Wednesday, Oct 21, 2026, 9:30 AM local time
@@ -122,5 +123,19 @@ describe("habitReminder", () => {
       alarm_time: "18:00",
     };
     expect(habitReminder(habit, now)).toBeNull();
+  });
+});
+
+describe("partitionExpiredHabits", () => {
+  it("splits habits whose end date is before today", () => {
+    const habits = [
+      { id: "a" },
+      { id: "b", end_date: "2026-10-20" },
+      { id: "c", end_date: "2026-10-21" },
+      { id: "d", end_date: "2026-12-01" },
+    ];
+    const { live, expired } = partitionExpiredHabits(habits, "2026-10-21");
+    expect(live.map((h) => h.id)).toEqual(["a", "c", "d"]);
+    expect(expired.map((h) => h.id)).toEqual(["b"]);
   });
 });

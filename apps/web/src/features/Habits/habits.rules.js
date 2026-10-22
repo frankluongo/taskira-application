@@ -36,3 +36,14 @@ export function habitReminder(habit, now = new Date()) {
   if (!at) return null;
   return { id: habit.id, title: "Habit Reminder", body: habit.name, at };
 }
+
+// Habits whose end date has passed are deleted at startup.
+export function partitionExpiredHabits(habits, today) {
+  const live = [];
+  const expired = [];
+  for (const habit of habits) {
+    if (habit.end_date && habit.end_date < today) expired.push(habit);
+    else live.push(habit);
+  }
+  return { live, expired };
+}
