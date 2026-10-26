@@ -2,7 +2,8 @@ import { useState } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 
 import { DragContext } from "@/features/DragAndDrop";
-import { HabitForm, HabitItem } from "@/features/Habits";
+import { HabitForm } from "../components/HabitForm/HabitForm";
+import { HabitItem } from "../components/HabitItem/HabitItem";
 
 import { useStore } from "@/lib/store";
 import {
@@ -20,11 +21,11 @@ import {
   List,
   Modal,
 } from "@/base";
-import css from "./Habits.module.css";
+import css from "./HabitsPage.module.css";
 
 const GROUPS = ["AM", "Misc", "PM"];
 
-export default function Habits() {
+export function HabitsPage() {
   const { habits, addHabit, reorderHabits, isHabitDoneToday, habitsDueToday } =
     useStore();
   const [showForm, setShowForm] = useState(false);

@@ -1,31 +1,31 @@
 import { createHashRouter } from "react-router";
-import Today from "@/pages/Today";
-import Habits from "@/pages/Habits";
-import Chores from "@/pages/Chores";
-import KitchenSink from "@/pages/KitchenSink";
-import Tasks from "@/pages/Tasks";
-import Projects from "@/pages/Projects";
-import Checklists from "@/pages/Checklists";
 
+import { LoginPage, ProtectedRoute } from "@/features/Auth";
+import { ChecklistDetailPage, ChecklistsPage } from "@/features/Checklists";
+import { ChoresPage } from "@/features/Chores";
+import { HabitsPage } from "@/features/Habits";
+import { KitchenSinkPage } from "@/features/KitchenSink";
+import { ProjectsPage } from "@/features/Projects";
 import { Taskira } from "@/features/Taskira";
-import { ChecklistDetailRoute, LoginRoute, ProtectedRoute } from "@/pages";
+import { TasksPage } from "@/features/Tasks";
+import { TodayPage } from "@/features/Today";
 
 export const router = createHashRouter([
   {
     element: <Taskira />,
     children: [
-      { path: "/login", element: <LoginRoute /> },
+      { path: "/login", element: <LoginPage /> },
       {
         element: <ProtectedRoute />,
         children: [
-          { index: true, element: <Today /> },
-          { path: "habits", element: <Habits /> },
-          { path: "chores", element: <Chores /> },
-          { path: "tasks", element: <Tasks /> },
-          { path: "projects", element: <Projects /> },
-          { path: "checklists", element: <Checklists /> },
-          { path: "checklists/:id", element: <ChecklistDetailRoute /> },
-          { path: "kitchen-sink", element: <KitchenSink /> },
+          { index: true, element: <TodayPage /> },
+          { path: "habits", element: <HabitsPage /> },
+          { path: "chores", element: <ChoresPage /> },
+          { path: "tasks", element: <TasksPage /> },
+          { path: "projects", element: <ProjectsPage /> },
+          { path: "checklists", element: <ChecklistsPage /> },
+          { path: "checklists/:id", element: <ChecklistDetailPage /> },
+          { path: "kitchen-sink", element: <KitchenSinkPage /> },
         ],
       },
     ],

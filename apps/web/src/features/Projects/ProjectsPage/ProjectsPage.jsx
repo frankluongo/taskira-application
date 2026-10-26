@@ -14,9 +14,9 @@ import {
   Modal,
   Scroller,
 } from "@/base";
-import css from "./Projects.module.css";
+import css from "./ProjectsPage.module.css";
 
-export default function Projects() {
+export function ProjectsPage() {
   const {
     tasks,
     projects,

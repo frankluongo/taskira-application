@@ -12,7 +12,8 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { format, addDays } from "date-fns";
-import { ChoreForm, ChoreItem } from "@/features/Chores";
+import { ChoreForm } from "../ChoreForm/ChoreForm";
+import { ChoreItem } from "../ChoreItem/ChoreItem";
 import { usePageHeader } from "@/features/Taskira";
 import { useStore } from "@/lib/store";
 import {
@@ -24,13 +25,13 @@ import {
   Scroller,
   Section,
 } from "@/base";
-import css from "./Chores.module.css";
+import css from "./ChoresPage.module.css";
 
 const fmt = (d) => format(d, "yyyy-MM-dd");
 const todayStr = () => fmt(new Date());
 const tomorrowStr = () => fmt(addDays(new Date(), 1));
 
-export default function Chores() {
+export function ChoresPage() {
   const { chores, chore_lists, addChore, addChoreList, reorderChores } =
     useStore();
   const [showForm, setShowForm] = useState(false);

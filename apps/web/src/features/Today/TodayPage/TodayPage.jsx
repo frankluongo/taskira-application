@@ -4,9 +4,9 @@ import { FlexColumn, Heading, List, Section, Text, ToggleButton } from "@/base";
 import { PriorityBadge } from "@/features/Tasks";
 import { usePageHeader } from "@/features/Taskira";
 import { HABIT_GROUPS } from "@/features/Habits";
-import css from "./Today.module.css";
+import css from "./TodayPage.module.css";
 
-export default function Today() {
+export function TodayPage() {
   const {
     habitsDueToday,
     completeHabit,

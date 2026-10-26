@@ -29,7 +29,7 @@ import {
   Spinner,
   ToggleButton,
 } from "@/base";
-import css from "./KitchenSink.module.css";
+import css from "./KitchenSinkPage.module.css";
 
 const THEME_TOKENS = [
   "--theme-color-accent-500",
@@ -73,7 +73,7 @@ const ICONS = {
   IconTrash,
 };
 
-export default function KitchenSink() {
+export function KitchenSinkPage() {
   const [disclosureOpen, setDisclosureOpen] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [textValue, setTextValue] = useState("");

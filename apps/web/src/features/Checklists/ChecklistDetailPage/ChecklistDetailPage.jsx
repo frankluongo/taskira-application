@@ -26,7 +26,7 @@ import {
   IconPlus,
   IconTrash,
 } from "@/base";
-import css from "./ChecklistDetailRoute.module.css";
+import css from "./ChecklistDetailPage.module.css";
 
 function containerKey(sectionId) {
   return `container:${sectionId ?? "ungrouped"}`;
@@ -37,7 +37,7 @@ function sectionIdFromContainerKey(key) {
   return raw === "ungrouped" ? null : raw;
 }
 
-export function ChecklistDetailRoute() {
+export function ChecklistDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const {
