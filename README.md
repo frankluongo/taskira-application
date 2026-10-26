@@ -4,11 +4,11 @@ A task/habit tracker built with React + Vite, packaged as a native desktop app w
 
 This is an npm-workspaces monorepo:
 
-| Path         | What                                                                                     |
-| ------------ | ---------------------------------------------------------------------------------------- |
-| `apps/web`   | The Vite/React web app, including the base component library (`src/base`) with Storybook |
-| `apps/tauri` | The Tauri desktop shell, wrapping `apps/web`'s build output                              |
-| `apps/ios`   | The Capacitor iOS shell, wrapping `apps/web`'s build output                              |
+| Path         | What                                                                      |
+| ------------ | ------------------------------------------------------------------------- |
+| `apps/web`   | The Vite/React web app, including the base component library (`src/base`) |
+| `apps/tauri` | The Tauri desktop shell, wrapping `apps/web`'s build output               |
+| `apps/ios`   | The Capacitor iOS shell, wrapping `apps/web`'s build output               |
 
 ## Development
 
@@ -16,8 +16,9 @@ This is an npm-workspaces monorepo:
 npm install
 npm run dev          # web-only, in the browser
 npm run tauri:dev    # desktop app, hot-reloading
-npm run storybook    # component library in isolation
 ```
+
+To browse the base components, run `npm run dev` and open `#/kitchen-sink` (requires sign-in).
 
 ## Scaffolding
 
