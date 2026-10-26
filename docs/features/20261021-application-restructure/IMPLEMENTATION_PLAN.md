@@ -12,21 +12,21 @@ Step-by-step plan for the [Feature Spec](./FEATURE_SPECS.md). Section references
 
 ## Tracker
 
-| # | PR | Depends on | Visible change? |
-| --- | --- | --- | --- |
-| pre | `fix/login-missing-useauth`: fix bug §8 #7 | — | Yes: login works |
-| 0 | Tooling: Prettier, ESLint, Vitest, CI | pre | No |
-| 1 | Shared extraction: date, recurrence, reorder, dnd | 0 | No |
-| 1b | `fix/recurrence-timezone`: fix bug §8 #8 | 1 | Yes: correct next due dates |
-| 2 | Services + app shell + page-header fix | 1 | Yes: page headers appear |
-| 3 | Store slices + bootstrap | 2 | No |
-| 4a | Habits feature folder | 3 | No |
-| 4b | Chores feature folder | 3 | No |
-| 4c | Tasks feature folder | 3 | No |
-| 4d | Projects feature folder | 4c | No |
-| 4e | Checklists feature folder | 3 | No |
-| 5 | Today, Auth, KitchenSink; delete `pages/`, `lib/`, global barrel | 4a–4e | No |
-| 6 | Enforce boundaries, update scaffold + README | 5 | No |
+| #   | PR                                                               | Depends on | Visible change?             |
+| --- | ---------------------------------------------------------------- | ---------- | --------------------------- |
+| pre | `fix/login-missing-useauth`: fix bug §8 #7                       | —          | Yes: login works            |
+| 0   | Tooling: Prettier, ESLint, Vitest, CI                            | pre        | No                          |
+| 1   | Shared extraction: date, recurrence, reorder, dnd                | 0          | No                          |
+| 1b  | `fix/recurrence-timezone`: fix bug §8 #8                         | 1          | Yes: correct next due dates |
+| 2   | Services + app shell + page-header fix                           | 1          | Yes: page headers appear    |
+| 3   | Store slices + bootstrap                                         | 2          | No                          |
+| 4a  | Habits feature folder                                            | 3          | No                          |
+| 4b  | Chores feature folder                                            | 3          | No                          |
+| 4c  | Tasks feature folder                                             | 3          | No                          |
+| 4d  | Projects feature folder                                          | 4c         | No                          |
+| 4e  | Checklists feature folder                                        | 3          | No                          |
+| 5   | Today, Auth, KitchenSink; delete `pages/`, `lib/`, global barrel | 4a–4e      | No                          |
+| 6   | Enforce boundaries, update scaffold + README                     | 5          | No                          |
 
 PRs 4a, 4b, 4c, and 4e are independent of each other; 4d needs 4c because Projects imports Tasks' public API.
 
@@ -97,11 +97,11 @@ All new modules go in `apps/web/src/shared/`. Each step replaces its duplicates 
 1. `git mv src/lib/date.js src/shared/date.js` (and its test).
 2. Its API:
    ```js
-   toISODate(date)                         // format(date, "yyyy-MM-dd")
-   todayISO(now = new Date())
-   tomorrowISO(now = new Date())
-   formatDisplayDate(date, pattern)        // replaces getTodayString("EEEE, MMM d")
-   formatTime(hhmm)                        // unchanged
+   toISODate(date); // format(date, "yyyy-MM-dd")
+   todayISO((now = new Date()));
+   tomorrowISO((now = new Date()));
+   formatDisplayDate(date, pattern); // replaces getTodayString("EEEE, MMM d")
+   formatTime(hhmm); // unchanged
    ```
 3. Replace:
    - the `today()` helper in `store.js`
@@ -114,12 +114,12 @@ All new modules go in `apps/web/src/shared/`. Each step replaces its duplicates 
 
 1. Its API:
    ```js
-   RECURRENCE_UNITS                        // ["days", "weeks", "months", "years"]
-   parseRecurrence(value)                  // → { recurrence, customInterval, customUnit } (form state)
-   serializeRecurrence({ recurrence, customInterval, customUnit })  // → "custom:3:months" | "weekly" | null
-   supportsRepeatFrom(recurrence)          // weekly | monthly | yearly | custom
-   recurrenceLabel(value)                  // "Every 3 months", "Weekly", …
-   nextRecurrenceDate(item, now = new Date())  // handles "daily" too
+   RECURRENCE_UNITS; // ["days", "weeks", "months", "years"]
+   parseRecurrence(value); // → { recurrence, customInterval, customUnit } (form state)
+   serializeRecurrence({ recurrence, customInterval, customUnit }); // → "custom:3:months" | "weekly" | null
+   supportsRepeatFrom(recurrence); // weekly | monthly | yearly | custom
+   recurrenceLabel(value); // "Every 3 months", "Weekly", …
+   nextRecurrenceDate(item, (now = new Date())); // handles "daily" too
    ```
 2. `nextRecurrenceDate` must copy today's behavior exactly, including the `new Date(item.due_date)` parse. For `daily` it returns `tomorrowISO(now)`, which is what `completeChore`/`completeTask` do now.
 3. Replace:
@@ -137,8 +137,8 @@ All new modules go in `apps/web/src/shared/`. Each step replaces its duplicates 
 
 1. Its API:
    ```js
-   moveWithin(list, activeId, overId)          // arrayMove + sort_order = index; returns null on no-op
-   reorderSubset(all, subset, activeId, overId)  // moveWithin(subset) merged back into all by id
+   moveWithin(list, activeId, overId); // arrayMove + sort_order = index; returns null on no-op
+   reorderSubset(all, subset, activeId, overId); // moveWithin(subset) merged back into all by id
    ```
 2. Replace the `handleDragEnd` bodies in `Habits.jsx`, `Chores.jsx`, `Tasks.jsx`, and `Projects.jsx` with `reorderSubset`, and `handleSectionDragEnd` in `ChecklistDetailRoute.jsx` with `moveWithin`. Each handler shrinks to:
    ```js
@@ -194,10 +194,10 @@ Update imports. `lib/` now holds only `store.js`.
 
 1. Rewrite `services/notifications.js` so it knows nothing about habits, chores, or tasks:
    ```js
-   requestNotificationPermission()
-   scheduleReminder(reminder)             // { id: uuid, title, body, at } | null → no-op on null
-   cancelReminder(uuid)
-   rescheduleReminders(items, toReminder) // cancels every item with alarm_time, schedules non-null reminders
+   requestNotificationPermission();
+   scheduleReminder(reminder); // { id: uuid, title, body, at } | null → no-op on null
+   cancelReminder(uuid);
+   rescheduleReminders(items, toReminder); // cancels every item with alarm_time, schedules non-null reminders
    ```
    `notifId` (the UUID → integer hash) stays private to this file.
 2. Create the first rules files with the reminder builders. Phase 4 adds to them.
@@ -256,7 +256,10 @@ Update imports. `lib/` now holds only `store.js`.
 4. Turn `lib/store.js` into a **temporary shim** so no call site changes in this PR:
    ```js
    export { useStore } from "@/store";
-   export { INBOX_PROJECT_ID, PRIORITY_LABELS } from "@/features/Tasks/tasks.constants";
+   export {
+     INBOX_PROJECT_ID,
+     PRIORITY_LABELS,
+   } from "@/features/Tasks/tasks.constants";
    ```
    It's deleted in Phase 5.
 
@@ -354,12 +357,12 @@ Update imports. `lib/` now holds only `store.js`.
 
 Use `no-restricted-imports` overrides in `eslint.config.js`:
 
-| Files | Forbidden import patterns |
-| --- | --- |
-| `apps/web/src/**` | `@/features/*/*` (deep imports; use the feature's `index.js`), `@/lib/*`, `@/pages/*`, `@taskira/ui/*` |
-| `apps/web/src/shared/**` | `@/features/*`, `@/store*`, `@/app/*` |
-| `apps/web/src/services/**` | `@/features/*`, `@/store*`, `@/app/*`, `@/shared/*` |
-| `apps/web/src/store/**` | `@/app/*` |
+| Files                      | Forbidden import patterns                                                                              |
+| -------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `apps/web/src/**`          | `@/features/*/*` (deep imports; use the feature's `index.js`), `@/lib/*`, `@/pages/*`, `@taskira/ui/*` |
+| `apps/web/src/shared/**`   | `@/features/*`, `@/store*`, `@/app/*`                                                                  |
+| `apps/web/src/services/**` | `@/features/*`, `@/store*`, `@/app/*`, `@/shared/*`                                                    |
+| `apps/web/src/store/**`    | `@/app/*`                                                                                              |
 
 Within a feature, use relative imports (`./components/HabitItem/HabitItem`).
 

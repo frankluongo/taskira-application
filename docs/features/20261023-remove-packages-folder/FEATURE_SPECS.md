@@ -46,12 +46,12 @@ apps/web/
 
 ### 5.1 Files
 
-| From | To |
-| --- | --- |
-| `packages/ui/src/**` | `apps/web/src/base/**` |
-| `packages/ui/.storybook/**` | `apps/web/.storybook/**` |
-| `packages/ui/package.json` | Deleted; Storybook dev dependencies move to `apps/web/package.json` |
-| `packages/` | Deleted |
+| From                        | To                                                                  |
+| --------------------------- | ------------------------------------------------------------------- |
+| `packages/ui/src/**`        | `apps/web/src/base/**`                                              |
+| `packages/ui/.storybook/**` | `apps/web/.storybook/**`                                            |
+| `packages/ui/package.json`  | Deleted; Storybook dev dependencies move to `apps/web/package.json` |
+| `packages/`                 | Deleted                                                             |
 
 ### 5.2 Imports
 
@@ -59,18 +59,18 @@ Every `apps/web/src` import of `@taskira/ui`, `@taskira/ui/components`, or `@tas
 
 ### 5.3 Config
 
-| File | Change |
-| --- | --- |
-| `package.json` | Drop `packages/*` from `workspaces`; `storybook` script runs `-w apps/web` |
-| `apps/web/package.json` | Drop the `@taskira/ui` dependency; add `storybook` / `build-storybook` scripts and the Storybook dev dependencies |
-| `apps/web/jsconfig.json` | Drop the three `@taskira/ui*` paths (`@/*` already covers `@/base`) |
-| `apps/web/vite.config.js` | Drop the `preserveSymlinks` comment and setting (it existed only for the `@taskira/ui` symlink; `false` is the default) |
-| `apps/web/.storybook/main.js` | Stories glob points at `../src/base/**` |
-| `apps/web/.storybook/preview.js` | Import `../src/index.css` directly, no longer cross-package |
-| `eslint.config.js` | Replace `packages/ui/...` globs with `apps/web/...`; `no-restricted-imports` now flags `@/base/components` and `@/base/icons` |
-| `scripts/scaffold.js` | `component` type writes to `apps/web/src/base/components/` |
-| `README.md` | Remove `packages/ui` from the workspace table; update the scaffold table |
-| `package-lock.json` | Regenerated with `npm install` |
+| File                             | Change                                                                                                                        |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `package.json`                   | Drop `packages/*` from `workspaces`; `storybook` script runs `-w apps/web`                                                    |
+| `apps/web/package.json`          | Drop the `@taskira/ui` dependency; add `storybook` / `build-storybook` scripts and the Storybook dev dependencies             |
+| `apps/web/jsconfig.json`         | Drop the three `@taskira/ui*` paths (`@/*` already covers `@/base`)                                                           |
+| `apps/web/vite.config.js`        | Drop the `preserveSymlinks` comment and setting (it existed only for the `@taskira/ui` symlink; `false` is the default)       |
+| `apps/web/.storybook/main.js`    | Stories glob points at `../src/base/**`                                                                                       |
+| `apps/web/.storybook/preview.js` | Import `../src/index.css` directly, no longer cross-package                                                                   |
+| `eslint.config.js`               | Replace `packages/ui/...` globs with `apps/web/...`; `no-restricted-imports` now flags `@/base/components` and `@/base/icons` |
+| `scripts/scaffold.js`            | `component` type writes to `apps/web/src/base/components/`                                                                    |
+| `README.md`                      | Remove `packages/ui` from the workspace table; update the scaffold table                                                      |
+| `package-lock.json`              | Regenerated with `npm install`                                                                                                |
 
 ## 6. Acceptance criteria
 
