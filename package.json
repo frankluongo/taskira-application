@@ -4,8 +4,7 @@
   "version": "0.3.0",
   "type": "module",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/*"
   ],
   "scripts": {
     "dev": "npm run dev -w apps/web",
@@ -15,7 +14,7 @@
     "tauri:dev": "npm run dev -w apps/tauri",
     "tauri:build": "npm run build -w apps/tauri",
     "cap:sync": "npm run build -w apps/web && npm run sync -w apps/ios",
-    "storybook": "npm run storybook -w packages/ui",
+    "storybook": "npm run storybook -w apps/web",
     "deploy": "node scripts/deploy.js",
     "scaffold": "node scripts/scaffold.js",
     "format": "prettier --write .",

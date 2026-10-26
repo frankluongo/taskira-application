@@ -23,7 +23,7 @@ export default [
     },
   },
   {
-    files: ["apps/web/src/**/*.{js,jsx}", "packages/ui/src/**/*.{js,jsx}"],
+    files: ["apps/web/src/**/*.{js,jsx}"],
     ...react.configs.flat.recommended,
     ...react.configs.flat["jsx-runtime"],
     languageOptions: {
@@ -41,7 +41,7 @@ export default [
     },
   },
   {
-    files: ["packages/ui/.storybook/**/*.{js,jsx}"],
+    files: ["apps/web/.storybook/**/*.{js,jsx}"],
     languageOptions: { globals: globals.browser },
   },
   {
@@ -56,12 +56,12 @@ export default [
         {
           paths: [
             {
-              name: "@taskira/ui/components",
-              message: 'Import from "@taskira/ui" instead.',
+              name: "@/base/components",
+              message: 'Import from "@/base" instead.',
             },
             {
-              name: "@taskira/ui/icons",
-              message: 'Import from "@taskira/ui" instead.',
+              name: "@/base/icons",
+              message: 'Import from "@/base" instead.',
             },
           ],
         },

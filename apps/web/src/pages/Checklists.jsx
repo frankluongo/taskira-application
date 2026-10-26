@@ -11,7 +11,7 @@ import {
   Modal,
   Input,
   Form,
-} from "@taskira/ui";
+} from "@/base";
 import css from "./Checklists.module.css";
 
 export default function Checklists() {

@@ -8,7 +8,7 @@ import {
   IconFolder,
   IconList,
   Navigation,
-} from "@taskira/ui";
+} from "@/base";
 
 const tabs = [
   { to: "/", label: "Today", icon: IconCalendar },

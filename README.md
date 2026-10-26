@@ -4,12 +4,11 @@ A task/habit tracker built with React + Vite, packaged as a native desktop app w
 
 This is an npm-workspaces monorepo:
 
-| Path          | What                                                         |
-| ------------- | ------------------------------------------------------------ |
-| `apps/web`    | The Vite/React web app                                       |
-| `apps/tauri`  | The Tauri desktop shell, wrapping `apps/web`'s build output  |
-| `apps/ios`    | The Capacitor iOS shell, wrapping `apps/web`'s build output  |
-| `packages/ui` | `@taskira/ui` — the shared component library, with Storybook |
+| Path         | What                                                                                     |
+| ------------ | ---------------------------------------------------------------------------------------- |
+| `apps/web`   | The Vite/React web app, including the base component library (`src/base`) with Storybook |
+| `apps/tauri` | The Tauri desktop shell, wrapping `apps/web`'s build output                              |
+| `apps/ios`   | The Capacitor iOS shell, wrapping `apps/web`'s build output                              |
 
 ## Development
 
@@ -31,11 +30,11 @@ npm run scaffold page PageName
 
 Generates a new folder with a JSX file, a companion CSS module, and an entry added to the relevant barrel `index.js` (kept alphabetized):
 
-| Type        | Location                             | Barrel                                |
-| ----------- | ------------------------------------ | ------------------------------------- |
-| `component` | `packages/ui/src/components/<Name>/` | `packages/ui/src/components/index.js` |
-| `feature`   | `apps/web/src/features/<Name>/`      | `apps/web/src/features/index.js`      |
-| `page`      | `apps/web/src/pages/<Name>/`         | `apps/web/src/pages/index.js`         |
+| Type        | Location                               | Barrel                                  |
+| ----------- | -------------------------------------- | --------------------------------------- |
+| `component` | `apps/web/src/base/components/<Name>/` | `apps/web/src/base/components/index.js` |
+| `feature`   | `apps/web/src/features/<Name>/`        | `apps/web/src/features/index.js`        |
+| `page`      | `apps/web/src/pages/<Name>/`           | `apps/web/src/pages/index.js`           |
 
 Components get `className`/`variant` prop handling built in, since they're the design-system primitives other code composes. Features and pages get a plain component stub. Names must be PascalCase, and the command refuses to overwrite an existing directory.
 
