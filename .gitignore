@@ -47,6 +47,3 @@ apps/ios/ios/debug.xcconfig
 # Supabase CLI
 supabase/.env
 .supabase/
-
-# Documentation
-docs/
