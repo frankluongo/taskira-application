@@ -23,18 +23,6 @@ export function ${name}({ className = "", variant = "", ...props }) {
   },
   feature: {
     dir: ["apps", "web", "src", "features"],
-    indexPath: ["apps", "web", "src", "features", "index.js"],
-    layer: "features",
-    jsx: (name, baseClass) => `import css from "./${name}.module.css";
-
-export function ${name}() {
-  return <div className={css.${baseClass}} />;
-}
-`,
-  },
-  page: {
-    dir: ["apps", "web", "src", "pages"],
-    indexPath: ["apps", "web", "src", "pages", "index.js"],
     layer: "features",
     jsx: (name, baseClass) => `import css from "./${name}.module.css";
 
@@ -47,8 +35,7 @@ export function ${name}() {
 
 const usage = `Usage: npm run scaffold [${Object.keys(TYPES).join("|")}] <Name>
   npm run scaffold Badge             # defaults to "component"
-  npm run scaffold feature Reminders
-  npm run scaffold page Settings`;
+  npm run scaffold feature Reminders # features/Reminders/ with a RemindersPage`;
 
 let [first, second] = process.argv.slice(2);
 
@@ -73,16 +60,19 @@ if (!/^[A-Z][A-Za-z0-9]*$/.test(name)) {
 }
 
 const config = TYPES[type];
-const targetDir = path.join(root, ...config.dir, name);
+const isFeature = type === "feature";
+const componentName = isFeature ? `${name}Page` : name;
+const rootDir = path.join(root, ...config.dir, name);
+const targetDir = isFeature ? path.join(rootDir, componentName) : rootDir;
 
-if (existsSync(targetDir)) {
-  console.error(`"${path.relative(root, targetDir)}" already exists.`);
+if (existsSync(rootDir)) {
+  console.error(`"${path.relative(root, rootDir)}" already exists.`);
   process.exit(1);
 }
 
-const baseClass = name[0].toLowerCase() + name.slice(1);
+const baseClass = componentName[0].toLowerCase() + componentName.slice(1);
 
-const jsx = config.jsx(name, baseClass);
+const jsx = config.jsx(componentName, baseClass);
 
 const css = `@layer ${config.layer} {
 .${baseClass} {
@@ -91,27 +81,39 @@ const css = `@layer ${config.layer} {
 `;
 
 mkdirSync(targetDir, { recursive: true });
-writeFileSync(path.join(targetDir, `${name}.jsx`), jsx);
-writeFileSync(path.join(targetDir, `${name}.module.css`), css);
+writeFileSync(path.join(targetDir, `${componentName}.jsx`), jsx);
+writeFileSync(path.join(targetDir, `${componentName}.module.css`), css);
 
-const indexPath = path.join(root, ...config.indexPath);
-const lines = readFileSync(indexPath, "utf8").split("\n").filter(Boolean);
-const exportRe = /export \* from "\.\/(\w+)\//;
+let indexPath;
 
-let insertAt = lines.length;
-for (let i = 0; i < lines.length; i++) {
-  const match = lines[i].match(exportRe);
-  if (match && match[1].localeCompare(name) > 0) {
-    insertAt = i;
-    break;
+if (isFeature) {
+  indexPath = path.join(rootDir, "index.js");
+  writeFileSync(
+    indexPath,
+    `export * from "./${componentName}/${componentName}";\n`,
+  );
+} else {
+  indexPath = path.join(root, ...config.indexPath);
+  const lines = readFileSync(indexPath, "utf8").split("\n").filter(Boolean);
+  const exportRe = /export \* from "\.\/(\w+)\//;
+
+  let insertAt = lines.length;
+  for (let i = 0; i < lines.length; i++) {
+    const match = lines[i].match(exportRe);
+    if (match && match[1].localeCompare(name) > 0) {
+      insertAt = i;
+      break;
+    }
   }
-}
 
-lines.splice(insertAt, 0, `export * from "./${name}/${name}";`);
-writeFileSync(indexPath, lines.join("\n") + "\n");
+  lines.splice(insertAt, 0, `export * from "./${name}/${name}";`);
+  writeFileSync(indexPath, lines.join("\n") + "\n");
+}
 
 const relDir = path.relative(root, targetDir);
 console.log(`Scaffolded ${type} ${name}:`);
-console.log(`  ${relDir}/${name}.jsx`);
-console.log(`  ${relDir}/${name}.module.css`);
-console.log(`  updated ${path.relative(root, indexPath)}`);
+console.log(`  ${relDir}/${componentName}.jsx`);
+console.log(`  ${relDir}/${componentName}.module.css`);
+console.log(
+  `  ${isFeature ? "created" : "updated"} ${path.relative(root, indexPath)}`,
+);
