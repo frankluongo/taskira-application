@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 
-import { DragContext, HabitForm, HabitItem } from "@/features";
+import { DragContext } from "@/features/DragAndDrop";
+import { HabitForm, HabitItem } from "@/features/Habits";
 
 import { useStore } from "@/lib/store";
 import {

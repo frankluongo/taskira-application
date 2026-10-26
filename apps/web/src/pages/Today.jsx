@@ -1,7 +1,8 @@
 import { getTodayString } from "@/lib/date";
 import { useStore } from "@/lib/store";
 import { FlexColumn, Heading, List, Section, Text, ToggleButton } from "@/base";
-import { PriorityBadge, usePageHeader } from "@/features";
+import { PriorityBadge } from "@/features/Tasks";
+import { usePageHeader } from "@/features/Taskira";
 import { HABIT_GROUPS } from "@/features/Habits";
 import css from "./Today.module.css";
 

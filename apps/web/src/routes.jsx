@@ -7,7 +7,7 @@ import Tasks from "@/pages/Tasks";
 import Projects from "@/pages/Projects";
 import Checklists from "@/pages/Checklists";
 
-import { Taskira } from "@/features";
+import { Taskira } from "@/features/Taskira";
 import { ChecklistDetailRoute, LoginRoute, ProtectedRoute } from "@/pages";
 
 export const router = createHashRouter([

@@ -10,7 +10,7 @@ import {
   rescheduleAllTaskNotifications,
 } from "@/lib/notifications";
 import { Header, Main, Spinner } from "@/base";
-import { AppNavigation } from "../AppNavigation/AppNavigation";
+import { AppNavigation } from "./AppNavigation/AppNavigation";
 import { PageHeaderContext } from "./PageHeaderContext";
 import css from "./Taskira.module.css";
 

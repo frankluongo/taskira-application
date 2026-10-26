@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 import { getTodayString } from "@/lib/date";
-import { DragContext, TaskItem, TaskForm, usePageHeader } from "@/features";
+import { DragContext } from "@/features/DragAndDrop";
+import { TaskItem, TaskForm } from "@/features/Tasks";
+import { usePageHeader } from "@/features/Taskira";
 import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
 import {
   Button,

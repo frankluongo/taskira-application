@@ -12,7 +12,8 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { format, addDays } from "date-fns";
-import { ChoreForm, ChoreItem, usePageHeader } from "@/features";
+import { ChoreForm, ChoreItem } from "@/features/Chores";
+import { usePageHeader } from "@/features/Taskira";
 import { useStore } from "@/lib/store";
 import {
   Button,
