@@ -4,4 +4,3 @@ apps/ios/ios
 apps/ios/android
 apps/tauri/src-tauri
 package-lock.json
-storybook-static

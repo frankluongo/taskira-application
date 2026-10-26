@@ -19,7 +19,6 @@ yarn.lock
 dist/
 build/
 .next/
-storybook-static/
 
 # Logs
 logs/
