@@ -7,7 +7,6 @@ export default [
   {
     ignores: [
       "**/dist/**",
-      "**/storybook-static/**",
       "apps/ios/ios/**",
       "apps/ios/android/**",
       "apps/tauri/src-tauri/**",
@@ -39,10 +38,6 @@ export default [
       "react-hooks/exhaustive-deps": "warn",
       "react/prop-types": "off",
     },
-  },
-  {
-    files: ["apps/web/.storybook/**/*.{js,jsx}"],
-    languageOptions: { globals: globals.browser },
   },
   {
     files: ["scripts/**/*.js", "**/*.config.js"],
