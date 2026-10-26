@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, FieldsRow, Form, Input, Select } from "@taskira/ui";
+import { Button, FieldsRow, Form, Input, Select } from "@/base";
 import css from "./HabitForm.module.css";
 
 const GROUPS = ["AM", "Misc", "PM"];

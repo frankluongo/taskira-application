@@ -28,7 +28,7 @@ import {
   Select,
   Spinner,
   ToggleButton,
-} from "@taskira/ui";
+} from "@/base";
 import css from "./KitchenSink.module.css";
 
 const THEME_TOKENS = [

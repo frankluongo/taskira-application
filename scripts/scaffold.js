@@ -7,8 +7,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const TYPES = {
   component: {
-    dir: ["packages", "ui", "src", "components"],
-    indexPath: ["packages", "ui", "src", "components", "index.js"],
+    dir: ["apps", "web", "src", "base", "components"],
+    indexPath: ["apps", "web", "src", "base", "components", "index.js"],
     layer: "components",
     jsx: (name, baseClass) => `import css from "./${name}.module.css";
 

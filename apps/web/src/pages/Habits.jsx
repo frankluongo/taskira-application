@@ -18,7 +18,7 @@ import {
   IconPlus,
   List,
   Modal,
-} from "@taskira/ui";
+} from "@/base";
 import css from "./Habits.module.css";
 
 const GROUPS = ["AM", "Misc", "PM"];

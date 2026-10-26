@@ -22,7 +22,7 @@ import {
   Modal,
   Scroller,
   Section,
-} from "@taskira/ui";
+} from "@/base";
 import css from "./Chores.module.css";
 
 const fmt = (d) => format(d, "yyyy-MM-dd");

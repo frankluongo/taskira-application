@@ -11,7 +11,7 @@ import {
   List,
   Modal,
   Scroller,
-} from "@taskira/ui";
+} from "@/base";
 import css from "./Projects.module.css";
 
 export default function Projects() {

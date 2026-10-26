@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { Button, Form, FieldsRow, Input, Select } from "@taskira/ui";
+import { Button, Form, FieldsRow, Input, Select } from "@/base";
 import css from "./ChoreForm.module.css";
 
 function parseRecurrence(value) {

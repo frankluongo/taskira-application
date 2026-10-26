@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuth } from "@/lib/auth";
-import { Spinner } from "@taskira/ui";
+import { Spinner } from "@/base";
 
 export function ProtectedRoute() {
   const { user } = useAuth();
