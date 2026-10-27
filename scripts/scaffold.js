@@ -62,11 +62,10 @@ if (!/^[A-Z][A-Za-z0-9]*$/.test(name)) {
 const config = TYPES[type];
 const isFeature = type === "feature";
 const componentName = isFeature ? `${name}Page` : name;
-const rootDir = path.join(root, ...config.dir, name);
-const targetDir = isFeature ? path.join(rootDir, componentName) : rootDir;
+const targetDir = path.join(root, ...config.dir, name);
 
-if (existsSync(rootDir)) {
-  console.error(`"${path.relative(root, rootDir)}" already exists.`);
+if (existsSync(targetDir)) {
+  console.error(`"${path.relative(root, targetDir)}" already exists.`);
   process.exit(1);
 }
 
@@ -84,16 +83,13 @@ mkdirSync(targetDir, { recursive: true });
 writeFileSync(path.join(targetDir, `${componentName}.jsx`), jsx);
 writeFileSync(path.join(targetDir, `${componentName}.module.css`), css);
 
-let indexPath;
+const relDir = path.relative(root, targetDir);
+console.log(`Scaffolded ${type} ${name}:`);
+console.log(`  ${relDir}/${componentName}.jsx`);
+console.log(`  ${relDir}/${componentName}.module.css`);
 
-if (isFeature) {
-  indexPath = path.join(rootDir, "index.js");
-  writeFileSync(
-    indexPath,
-    `export * from "./${componentName}/${componentName}";\n`,
-  );
-} else {
-  indexPath = path.join(root, ...config.indexPath);
+if (!isFeature) {
+  const indexPath = path.join(root, ...config.indexPath);
   const lines = readFileSync(indexPath, "utf8").split("\n").filter(Boolean);
   const exportRe = /export \* from "\.\/(\w+)\//;
 
@@ -108,12 +104,5 @@ if (isFeature) {
 
   lines.splice(insertAt, 0, `export * from "./${name}/${name}";`);
   writeFileSync(indexPath, lines.join("\n") + "\n");
+  console.log(`  updated ${path.relative(root, indexPath)}`);
 }
-
-const relDir = path.relative(root, targetDir);
-console.log(`Scaffolded ${type} ${name}:`);
-console.log(`  ${relDir}/${componentName}.jsx`);
-console.log(`  ${relDir}/${componentName}.module.css`);
-console.log(
-  `  ${isFeature ? "created" : "updated"} ${path.relative(root, indexPath)}`,
-);

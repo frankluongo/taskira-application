@@ -1,14 +1,16 @@
 import { createHashRouter } from "react-router";
 
-import { LoginPage, ProtectedRoute } from "@/features/Auth";
-import { ChecklistDetailPage, ChecklistsPage } from "@/features/Checklists";
-import { ChoresPage } from "@/features/Chores";
-import { HabitsPage } from "@/features/Habits";
-import { KitchenSinkPage } from "@/features/KitchenSink";
-import { ProjectsPage } from "@/features/Projects";
-import { Taskira } from "@/features/Taskira";
-import { TasksPage } from "@/features/Tasks";
-import { TodayPage } from "@/features/Today";
+import { LoginPage } from "@/features/Auth/LoginPage";
+import { ProtectedRoute } from "@/features/Auth/ProtectedRoute";
+import { ChecklistDetailPage } from "@/features/Checklists/ChecklistDetailPage";
+import { ChecklistsPage } from "@/features/Checklists/ChecklistsPage";
+import { ChoresPage } from "@/features/Chores/ChoresPage";
+import { HabitsPage } from "@/features/Habits/HabitsPage";
+import { KitchenSinkPage } from "@/features/KitchenSink/KitchenSinkPage";
+import { ProjectsPage } from "@/features/Projects/ProjectsPage";
+import { Taskira } from "@/features/Taskira/Taskira";
+import { TasksPage } from "@/features/Tasks/TasksPage";
+import { TodayPage } from "@/features/Today/TodayPage";
 
 export const router = createHashRouter([
   {

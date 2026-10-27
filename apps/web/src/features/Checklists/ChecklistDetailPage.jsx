@@ -17,7 +17,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useStore } from "@/lib/store";
-import { usePageHeader } from "@/features/Taskira";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
 import {
   Button,
   IconCheckmark,

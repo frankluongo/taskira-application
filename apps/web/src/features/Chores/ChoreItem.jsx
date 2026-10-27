@@ -3,7 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useStore } from "@/lib/store";
 import { formatTime } from "@/lib/date";
-import { HabitForm } from "../HabitForm/HabitForm";
+import { ChoreForm } from "./ChoreForm";
 import {
   Button,
   IconBell,
@@ -13,26 +13,28 @@ import {
   Modal,
   ToggleButton,
 } from "@/base";
-
-import css from "./HabitItem.module.css";
+import css from "./ChoreItem.module.css";
 
 const RECURRENCE_LABELS = {
   daily: "Daily",
-  weekdays: "Weekdays",
-  weekends: "Weekends",
-  specific_days: "Specific days",
+  weekly: "Weekly",
+  monthly: "Monthly",
+  yearly: "Yearly",
 };
 
-export function HabitItem({ habit, dragMode = false }) {
-  const {
-    completeHabit,
-    uncompleteHabit,
-    isHabitDoneToday,
-    updateHabit,
-    deleteHabit,
-  } = useStore();
+function recurrenceLabel(value) {
+  if (!value) return null;
+  if (RECURRENCE_LABELS[value]) return RECURRENCE_LABELS[value];
+  if (value.startsWith("custom:")) {
+    const [, n, unit] = value.split(":");
+    return `Every ${n} ${unit}`;
+  }
+  return null;
+}
+
+export function ChoreItem({ chore }) {
+  const { completeChore, updateChore, deleteChore, chore_lists } = useStore();
   const [showEditModal, setShowEditModal] = useState(false);
-  const done = isHabitDoneToday(habit.id);
 
   const {
     attributes,
@@ -41,39 +43,38 @@ export function HabitItem({ habit, dragMode = false }) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: habit.id });
+  } = useSortable({ id: chore.id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.4 : 1,
   };
 
-  function toggle() {
-    if (done) uncompleteHabit(habit.id);
-    else completeHabit(habit.id);
-  }
+  const list = chore_lists.find((l) => l.id === chore.list_id);
 
   return (
-    <div ref={setNodeRef} style={style} className={css.item}>
+    <div ref={setNodeRef} style={style}>
       <div className={css.row}>
-        {dragMode && (
-          <button {...attributes} {...listeners} className={css.grip}>
-            <IconGrip />
-          </button>
-        )}
+        <button {...attributes} {...listeners} className={css.grip}>
+          <IconGrip />
+        </button>
 
-        <ToggleButton active={done} onClick={toggle} />
+        <ToggleButton
+          variant="square"
+          onClick={() => completeChore(chore.id)}
+        />
 
         <div className={css.body}>
-          <span className={`${css.name} ${done ? css.done : ""}`}>
-            {habit.name}
-          </span>
+          <span className={css.name}>{chore.name}</span>
           <p className={css.meta}>
-            {RECURRENCE_LABELS[habit.recurrence]}
-            {habit.alarm_time && (
+            {list && <span className={css.list}>{list.name}</span>}
+            {chore.recurrence && (
+              <span>{recurrenceLabel(chore.recurrence)}</span>
+            )}
+            {chore.alarm_time && (
               <span className={css.alarm}>
                 <IconBell />
-                {formatTime(habit.alarm_time)}
+                {formatTime(chore.alarm_time)}
               </span>
             )}
           </p>
@@ -87,7 +88,7 @@ export function HabitItem({ habit, dragMode = false }) {
             <IconEdit />
           </Button>
           <Button
-            onClick={() => deleteHabit(habit.id)}
+            onClick={() => deleteChore(chore.id)}
             variant="icon secondary slim"
           >
             <IconTrash />
@@ -98,12 +99,12 @@ export function HabitItem({ habit, dragMode = false }) {
       <Modal
         open={showEditModal}
         onClose={() => setShowEditModal(false)}
-        title="Edit Habit"
+        title="Edit Chore"
       >
-        <HabitForm
-          initialValues={habit}
+        <ChoreForm
+          initialValues={chore}
           onSubmit={(patch) => {
-            updateHabit(habit.id, patch);
+            updateChore(chore.id, patch);
             setShowEditModal(false);
           }}
           submitLabel="Save Changes"

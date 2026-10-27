@@ -28,12 +28,12 @@ npm run scaffold component ComponentName
 npm run scaffold feature FeatureName
 ```
 
-| Type        | Creates                                                   | Barrel                                              |
-| ----------- | --------------------------------------------------------- | --------------------------------------------------- |
-| `component` | `apps/web/src/base/components/<Name>/`                    | appended to `apps/web/src/base/components/index.js` |
-| `feature`   | `apps/web/src/features/<Name>/` with a `<Name>Page/` stub | new `apps/web/src/features/<Name>/index.js`         |
+| Type        | Creates                                                         | Barrel                                              |
+| ----------- | --------------------------------------------------------------- | --------------------------------------------------- |
+| `component` | `apps/web/src/base/components/<Name>/`                          | appended to `apps/web/src/base/components/index.js` |
+| `feature`   | `apps/web/src/features/<Name>/<Name>Page.jsx` (+ `.module.css`) | none                                                |
 
-Each feature folder holds everything for one product area: its page(s), components, constants, and helpers. Other code imports a feature through its barrel (`@/features/<Name>`). Files inside a feature import each other by relative path, never through their own barrel. After scaffolding a feature, add its page to `apps/web/src/routes.jsx`.
+Each feature folder is flat and holds everything for one product area: its page(s), components, constants, and helpers, one file each, with no subfolders or barrel. Other code imports a feature file directly (`@/features/<Name>/<File>`). Files inside a feature import each other by relative path (`./<File>`). After scaffolding a feature, add its page to `apps/web/src/routes.jsx`.
 
 Components get `className`/`variant` prop handling built in, since they're the design-system primitives other code composes. Feature pages get a plain component stub. Names must be PascalCase, and the command refuses to overwrite an existing directory.
 

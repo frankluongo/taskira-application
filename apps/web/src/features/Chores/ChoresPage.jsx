@@ -12,9 +12,9 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { format, addDays } from "date-fns";
-import { ChoreForm } from "../ChoreForm/ChoreForm";
-import { ChoreItem } from "../ChoreItem/ChoreItem";
-import { usePageHeader } from "@/features/Taskira";
+import { ChoreForm } from "./ChoreForm";
+import { ChoreItem } from "./ChoreItem";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
 import { useStore } from "@/lib/store";
 import {
   Button,

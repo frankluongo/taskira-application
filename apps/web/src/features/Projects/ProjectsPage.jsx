@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
-import { DragContext } from "@/features/DragAndDrop";
-import { TaskItem, TaskForm } from "@/features/Tasks";
-import { usePageHeader } from "@/features/Taskira";
+import { DragContext } from "@/features/DragAndDrop/DragContext";
+import { TaskItem } from "@/features/Tasks/TaskItem";
+import { TaskForm } from "@/features/Tasks/TaskForm";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
 import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
 import {
   Button,

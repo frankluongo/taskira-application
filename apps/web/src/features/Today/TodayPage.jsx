@@ -1,9 +1,9 @@
 import { getTodayString } from "@/lib/date";
 import { useStore } from "@/lib/store";
 import { FlexColumn, Heading, List, Section, Text, ToggleButton } from "@/base";
-import { PriorityBadge } from "@/features/Tasks";
-import { usePageHeader } from "@/features/Taskira";
-import { HABIT_GROUPS } from "@/features/Habits";
+import { PriorityBadge } from "@/features/Tasks/PriorityBadge";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
+import { HABIT_GROUPS } from "@/features/Habits/constants";
 import css from "./TodayPage.module.css";
 
 export function TodayPage() {

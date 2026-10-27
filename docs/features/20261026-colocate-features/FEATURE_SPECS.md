@@ -1,12 +1,12 @@
 # Co-locate Pages Into Features — Feature Spec
 
-**Status:** Proposed · **Date:** 2026-10-26 · **Scope:** `apps/web/src` (`pages/`, `features/`, `routes.jsx`), `scripts/scaffold.js`, `README.md`
+**Status:** Implemented · **Date:** 2026-10-26 · **Scope:** `apps/web/src` (`pages/`, `features/`, `routes.jsx`), `scripts/scaffold.js`, `README.md`
 
 ## 1. Summary
 
 The web app splits each product area across two folders. The Tasks area, for example, has its route component in `src/pages/Tasks.jsx` and its building blocks (`TaskItem`, `TaskForm`, `PriorityBadge`) in `src/features/Tasks/`. To work on one area you jump between two trees, and the split tells you nothing useful: every page belongs to one feature, and most features exist to serve one page.
 
-Move every page into the feature it belongs to, so `src/features/<Area>/` holds everything for that area: its page(s), components, constants, and helpers. Then delete `src/pages/`.
+Move every page into the feature it belongs to, so `src/features/<Area>/` holds everything for that area: its page(s), components, constants, and helpers, as flat files. Then delete `src/pages/` and every feature barrel.
 
 This is a **file-structure refactor, not a feature**. No UI, styling, routing, or behavior changes.
 
@@ -14,8 +14,8 @@ This is a **file-structure refactor, not a feature**. No UI, styling, routing, o
 
 1. **One place per product area.** Everything for Tasks lives in `features/Tasks/`, everything for Habits in `features/Habits/`, and so on.
 2. **No `pages/` folder.** Route components live next to the components they compose.
-3. **Consistent pages.** Every page is a named export called `<Name>Page`, in its own `<Name>Page/` folder with a matching CSS module. Today there's a mix of flat default-export files (`Tasks.jsx`) and folder-based named exports (`LoginRoute/LoginRoute.jsx`).
-4. **Explicit feature boundaries.** Code outside a feature imports it through that feature's barrel (`@/features/Tasks`). Code inside a feature imports its siblings by relative path.
+3. **Consistent pages.** Every page is a named export called `<Name>Page`, in `<Name>Page.jsx` with a matching CSS module. Today there's a mix of flat default-export files (`Tasks.jsx`) and folder-based named exports (`LoginRoute/LoginRoute.jsx`).
+4. **Flat features.** Each feature is a single folder of files, with no per-component subfolders and no barrels. Imports name the exact file they depend on.
 5. **Nothing else changes.** URLs, rendered markup, CSS, store, and tests behave exactly as before.
 
 ## 3. Non-goals
@@ -23,8 +23,7 @@ This is a **file-structure refactor, not a feature**. No UI, styling, routing, o
 - Changing any component's API, markup, or CSS rules (class names stay as they are).
 - Changing routes or URLs.
 - Adding lazy loading or code splitting to routes.
-- Normalizing how features are organized internally. For example, `Habits` keeps its `components/`, `constants/`, and `functions/` subfolders while `Tasks` and `Chores` stay flat. That can be a follow-up.
-- Moving `src/base/` or `src/lib/`. They are shared infrastructure, not features.
+- Moving or flattening `src/base/` or `src/lib/`. They are shared infrastructure, not features, and `src/base` keeps its folder-per-component layout and `@/base` barrel.
 - Rewriting historical docs in `docs/features/`.
 
 ## 4. Current state
@@ -58,8 +57,9 @@ Problems:
 
 - **Split areas.** Tasks, Habits, and Chores each live in two places.
 - **Two page conventions.** Seven pages are flat default exports imported by path (`@/pages/Tasks`). Three are folder-based named exports imported from a barrel (`@/pages`).
-- **A root barrel that will become a cycle.** Pages import from `@/features`, which re-exports every feature. Once pages live inside features and their barrels export them, `TasksPage` importing `@/features` would import itself. ES modules tolerate that, but it's fragile and makes Vite's HMR fall back to full reloads.
+- **A root barrel that will become a cycle.** Pages import from `@/features`, which re-exports every feature. Once pages live inside features, `TasksPage` importing `@/features` would import itself. ES modules tolerate that, but it's fragile and makes Vite's HMR fall back to full reloads.
 - **Hidden dependencies.** `import { ... } from "@/features"` hides which feature a symbol comes from. `Today.jsx` even imports from both `@/features` and `@/features/Habits`.
+- **Inconsistent feature internals.** `Habits` nests components under `components/` while `Tasks` and `Chores` use one folder per component.
 
 ## 5. Target state
 
@@ -67,70 +67,63 @@ Problems:
 src/
 ├── features/
 │   ├── Auth/
-│   │   ├── index.js
-│   │   ├── LoginPage/            # was pages/LoginRoute
-│   │   └── ProtectedRoute/       # was pages/ProtectedRoute
+│   │   ├── LoginPage.jsx              # was pages/LoginRoute
+│   │   └── ProtectedRoute.jsx         # was pages/ProtectedRoute
 │   ├── Checklists/
-│   │   ├── index.js
-│   │   ├── ChecklistDetailPage/  # was pages/ChecklistDetailRoute
-│   │   └── ChecklistsPage/       # was pages/Checklists.jsx
+│   │   ├── ChecklistDetailPage.jsx    # was pages/ChecklistDetailRoute
+│   │   └── ChecklistsPage.jsx         # was pages/Checklists.jsx
 │   ├── Chores/
-│   │   ├── index.js
-│   │   ├── ChoreForm/
-│   │   ├── ChoreItem/
-│   │   └── ChoresPage/           # was pages/Chores.jsx
-│   ├── DragAndDrop/              # unchanged
+│   │   ├── ChoreForm.jsx
+│   │   ├── ChoreItem.jsx
+│   │   └── ChoresPage.jsx             # was pages/Chores.jsx
+│   ├── DragAndDrop/
+│   │   ├── DragContext.jsx
+│   │   └── useDragMode.js
 │   ├── Habits/
-│   │   ├── index.js
-│   │   ├── components/           # unchanged
-│   │   ├── constants/            # unchanged
-│   │   ├── functions/            # unchanged
-│   │   └── HabitsPage/           # was pages/Habits.jsx
+│   │   ├── constants.js               # was constants/index.js
+│   │   ├── functions.js               # was functions/index.js
+│   │   ├── HabitForm.jsx              # was components/HabitForm/
+│   │   ├── HabitItem.jsx              # was components/HabitItem/
+│   │   └── HabitsPage.jsx             # was pages/Habits.jsx
 │   ├── KitchenSink/
-│   │   ├── index.js
-│   │   └── KitchenSinkPage/      # was pages/KitchenSink.jsx
+│   │   └── KitchenSinkPage.jsx        # was pages/KitchenSink.jsx
 │   ├── Projects/
-│   │   ├── index.js
-│   │   └── ProjectsPage/         # was pages/Projects.jsx
+│   │   └── ProjectsPage.jsx           # was pages/Projects.jsx
 │   ├── Taskira/
-│   │   ├── index.js              # new
-│   │   ├── AppNavigation/        # was features/AppNavigation
+│   │   ├── AppNavigation.jsx          # was features/AppNavigation
 │   │   ├── PageHeaderContext.js
-│   │   ├── Taskira.jsx
-│   │   └── Taskira.module.css
+│   │   └── Taskira.jsx
 │   ├── Tasks/
-│   │   ├── index.js
-│   │   ├── PriorityBadge/
-│   │   ├── TaskForm/
-│   │   ├── TaskItem/
-│   │   └── TasksPage/            # was pages/Tasks.jsx
+│   │   ├── PriorityBadge.jsx
+│   │   ├── TaskForm.jsx
+│   │   ├── TaskItem.jsx
+│   │   └── TasksPage.jsx              # was pages/Tasks.jsx
 │   └── Today/
-│       ├── index.js
-│       └── TodayPage/            # was pages/Today.jsx
+│       └── TodayPage.jsx              # was pages/Today.jsx
 └── routes.jsx
 ```
 
-`features/index.js` and `pages/` are gone.
+CSS modules sit next to their JSX and aren't shown. `pages/`, `features/index.js`, and every per-feature `index.js` are gone.
 
 ### 5.1 Where each page goes
 
-| Current                        | New                                                        | Export name           |
-| ------------------------------ | ---------------------------------------------------------- | --------------------- |
-| `pages/Today.jsx`              | `features/Today/TodayPage/TodayPage.jsx`                   | `TodayPage`           |
-| `pages/Habits.jsx`             | `features/Habits/HabitsPage/HabitsPage.jsx`                | `HabitsPage`          |
-| `pages/Chores.jsx`             | `features/Chores/ChoresPage/ChoresPage.jsx`                | `ChoresPage`          |
-| `pages/Tasks.jsx`              | `features/Tasks/TasksPage/TasksPage.jsx`                   | `TasksPage`           |
-| `pages/Projects.jsx`           | `features/Projects/ProjectsPage/ProjectsPage.jsx`          | `ProjectsPage`        |
-| `pages/Checklists.jsx`         | `features/Checklists/ChecklistsPage/ChecklistsPage.jsx`    | `ChecklistsPage`      |
-| `pages/ChecklistDetailRoute/…` | `features/Checklists/ChecklistDetailPage/…`                | `ChecklistDetailPage` |
-| `pages/LoginRoute/…`           | `features/Auth/LoginPage/…`                                | `LoginPage`           |
-| `pages/ProtectedRoute/…`       | `features/Auth/ProtectedRoute/…`                           | `ProtectedRoute`      |
-| `pages/KitchenSink.jsx`        | `features/KitchenSink/KitchenSinkPage/KitchenSinkPage.jsx` | `KitchenSinkPage`     |
-| `features/AppNavigation/`      | `features/Taskira/AppNavigation/`                          | `AppNavigation`       |
+| Current                        | New                                         | Export name           |
+| ------------------------------ | ------------------------------------------- | --------------------- |
+| `pages/Today.jsx`              | `features/Today/TodayPage.jsx`              | `TodayPage`           |
+| `pages/Habits.jsx`             | `features/Habits/HabitsPage.jsx`            | `HabitsPage`          |
+| `pages/Chores.jsx`             | `features/Chores/ChoresPage.jsx`            | `ChoresPage`          |
+| `pages/Tasks.jsx`              | `features/Tasks/TasksPage.jsx`              | `TasksPage`           |
+| `pages/Projects.jsx`           | `features/Projects/ProjectsPage.jsx`        | `ProjectsPage`        |
+| `pages/Checklists.jsx`         | `features/Checklists/ChecklistsPage.jsx`    | `ChecklistsPage`      |
+| `pages/ChecklistDetailRoute/…` | `features/Checklists/ChecklistDetailPage.*` | `ChecklistDetailPage` |
+| `pages/LoginRoute/…`           | `features/Auth/LoginPage.*`                 | `LoginPage`           |
+| `pages/ProtectedRoute/…`       | `features/Auth/ProtectedRoute.jsx`          | `ProtectedRoute`      |
+| `pages/KitchenSink.jsx`        | `features/KitchenSink/KitchenSinkPage.jsx`  | `KitchenSinkPage`     |
+| `features/AppNavigation/`      | `features/Taskira/AppNavigation.jsx`        | `AppNavigation`       |
 
-Each page's CSS module moves with it and is renamed to match (`Tasks.module.css` → `TasksPage/TasksPage.module.css`). Its contents, including `@layer features` and class names, don't change.
+Each page's CSS module moves with it and is renamed to match (`Tasks.module.css` → `Tasks/TasksPage.module.css`). Its contents, including `@layer features` and class names, don't change.
 
-**Why `Projects` is its own feature.** It has its own route and nav entry. It reuses `TaskItem` and `TaskForm`, which it imports from `@/features/Tasks` like any other consumer.
+**Why `Projects` is its own feature.** It has its own route and nav entry. It reuses `TaskItem` and `TaskForm`, which it imports from `@/features/Tasks/TaskItem` and `@/features/Tasks/TaskForm` like any other consumer.
 
 **Why `Today` is its own feature.** It's a dashboard that pulls from Habits, Chores, and Tasks, so it doesn't belong inside any one of them.
 
@@ -138,36 +131,38 @@ Each page's CSS module moves with it and is renamed to match (`Tasks.module.css`
 
 ### 5.2 Conventions
 
-| Rule                  | Detail                                                                                                                                                                                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Feature barrel        | Every feature folder has an `index.js` that re-exports its public API, pages included.                                                                                                     |
-| Cross-feature imports | Use the feature's barrel: `import { TaskItem } from "@/features/Tasks"`. Never deep-import another feature's files, and never import from `@/features` (the root barrel no longer exists). |
-| In-feature imports    | Use relative paths: `import { TaskItem } from "../TaskItem/TaskItem"`. A file must never import its own feature's barrel, because the barrel exports that file and would create a cycle.   |
-| Page naming           | `<Name>Page/<Name>Page.jsx` + `<Name>Page.module.css`, named export `<Name>Page`. No default exports.                                                                                      |
-| Private pieces        | Components used only inside a feature (like `AppNavigation` in `Taskira`) live in that feature and don't have to be exported from its barrel.                                              |
+| Rule                  | Detail                                                                                                                                 |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Flat features         | A feature is one folder of files: `features/<Name>/<File>.jsx` (+ `<File>.module.css`). No subfolders inside a feature.                |
+| No barrels            | Features have no `index.js`. Never import from `@/features` or `@/features/<Name>`.                                                    |
+| Cross-feature imports | Import the exact file: `import { TaskItem } from "@/features/Tasks/TaskItem"`.                                                         |
+| In-feature imports    | Use relative paths: `import { TaskItem } from "./TaskItem"`.                                                                           |
+| Page naming           | `<Name>Page.jsx` + `<Name>Page.module.css`, named export `<Name>Page`. No default exports.                                             |
+| Private pieces        | Components used only inside a feature (like `AppNavigation` in `Taskira`) live in that feature. Nothing marks them private but naming. |
 
-### 5.3 Why remove the root barrel
+### 5.3 Why remove the barrels
 
-The alternative is to keep `features/index.js` and re-export the pages through it. That keeps the current one-line imports, but:
+The alternative is to keep `features/index.js`, or per-feature `index.js` files, and re-export the pages through them. That keeps short imports, but:
 
-- Every page would import a barrel that re-exports the page itself, which is a circular import.
-- It hides the dependency graph. With per-feature imports you can see that `TodayPage` depends on Habits, Tasks, and Taskira just by reading its imports.
-- It loads every feature to get one symbol, which will matter if routes are lazy-loaded later.
+- A page importing a barrel that re-exports the page itself is a circular import. Per-feature barrels only avoid this if every in-feature file remembers to use relative paths.
+- It hides the dependency graph. With file imports you can see that `TodayPage` depends on `Tasks/PriorityBadge`, `Habits/constants`, and `Taskira/PageHeaderContext` just by reading its imports.
+- It loads every file a barrel re-exports to get one symbol, which will matter if routes are lazy-loaded later.
+- Barrels are one more file to keep in sync when a feature gains or loses a file.
 
 `src/base` keeps its root barrel (`@/base`). Base components are leaf primitives that never import features, so they can't form a cycle.
 
 ### 5.4 Other changes
 
-| File                  | Change                                                                                                                                                                                                 |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/routes.jsx`      | Import every route component as a named export from its feature barrel.                                                                                                                                |
-| `scripts/scaffold.js` | Drop the `page` type. `feature <Name>` now creates `features/<Name>/index.js` plus a `<Name>Page/` stub (JSX + CSS module), instead of appending to the deleted root barrel. `component` is unchanged. |
-| `README.md`           | Update the scaffolding section to match.                                                                                                                                                               |
+| File                  | Change                                                                                                                                                                                                    |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/routes.jsx`      | Import every route component as a named export from its file, e.g. `@/features/Tasks/TasksPage`.                                                                                                          |
+| `scripts/scaffold.js` | Drop the `page` type. `feature <Name>` now creates `features/<Name>/<Name>Page.jsx` + `<Name>Page.module.css`, with no barrel, instead of appending to the deleted root barrel. `component` is unchanged. |
+| `README.md`           | Update the scaffolding section to match.                                                                                                                                                                  |
 
 ### 5.5 Unaffected
 
 - `src/base/`, `src/lib/`, `src/index.css`, `main.jsx`, `App.jsx`.
-- `vite.config.js` and `jsconfig.json`. The `@/` alias already covers `@/features/<Name>`.
+- `vite.config.js` and `jsconfig.json`. The `@/` alias already covers `@/features/<Name>/<File>`.
 - `eslint.config.js`, `.prettierignore`, and the CI and release workflows, none of which reference `pages/` or `features/`.
 - The only test (`src/lib/date.test.js`).
 - Storybook. Its config only globs `src/base/**`, so this refactor is independent of the separate Storybook-removal work.
@@ -177,18 +172,17 @@ The alternative is to keep `features/index.js` and re-export the pages through i
 | Risk                                                      | Mitigation                                                                                                                       |
 | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | A missed import path breaks the build or a route          | Vite fails the build on unresolved imports. Run `npm run build` after each step, and click through every route in `npm run dev`. |
-| A circular import through a barrel                        | Follow the in-feature relative-import rule. Grep check in §7.                                                                    |
-| Losing file history                                       | Move files with `git mv` and land moves before content edits where practical, so `git log --follow` keeps working.               |
+| Losing file history                                       | Move files with `git mv` and keep content edits small, so `git log --follow` keeps working.                                      |
 | Merge conflicts with in-flight branches touching `pages/` | Land this as one short-lived PR. It's mechanical and easy to rebase onto.                                                        |
 
 ## 7. Acceptance criteria
 
-- [ ] `apps/web/src/pages/` and `apps/web/src/features/index.js` don't exist.
-- [ ] Every folder directly under `apps/web/src/features/` has an `index.js`.
-- [ ] Every page is a named `<Name>Page` export in `<Name>Page/<Name>Page.jsx`, except `ProtectedRoute`.
-- [ ] `grep -rn '@/pages\|from "@/features"' apps/web/src` returns nothing.
-- [ ] No file imports its own feature's barrel. For example, nothing in `features/Tasks/` imports `@/features/Tasks`.
+- [ ] `apps/web/src/pages/` doesn't exist.
+- [ ] No `index.js` anywhere under `apps/web/src/features/`.
+- [ ] No subfolders inside any `apps/web/src/features/<Name>/`.
+- [ ] Every page is a named `<Name>Page` export in `features/<Feature>/<Name>Page.jsx`, except `ProtectedRoute`.
+- [ ] `grep -rnE '@/pages|from "@/features(/\w+)?"' apps/web/src` returns nothing.
 - [ ] No `export default` in `apps/web/src/features/`.
-- [ ] `npm run scaffold feature Foo` creates `features/Foo/index.js` and `features/Foo/FooPage/` (delete it afterwards). `npm run scaffold page Foo` is no longer a valid type.
+- [ ] `npm run scaffold feature Foo` creates only `features/Foo/FooPage.jsx` and `features/Foo/FooPage.module.css` (delete it afterwards). `npm run scaffold page Foo` is no longer a valid type.
 - [ ] `npm run format:check`, `npm run lint`, `npm test`, and `npm run build` pass.
 - [ ] In `npm run dev`, every route renders as before: `/login`, `/`, `/habits`, `/chores`, `/tasks`, `/projects`, `/checklists`, `/checklists/:id`, `/kitchen-sink`. Logging out redirects to `/login`.
