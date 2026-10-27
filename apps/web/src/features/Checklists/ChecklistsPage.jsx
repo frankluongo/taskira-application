@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useStore } from "@/lib/store";
-import { usePageHeader } from "@/features";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
 import {
   Button,
   Float,
@@ -12,9 +12,9 @@ import {
   Input,
   Form,
 } from "@/base";
-import css from "./Checklists.module.css";
+import css from "./ChecklistsPage.module.css";
 
-export default function Checklists() {
+export function ChecklistsPage() {
   const { checklists, checklist_items, addChecklist, deleteChecklist } =
     useStore();
   const navigate = useNavigate();

@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
 import { getTodayString } from "@/lib/date";
-import { DragContext, TaskItem, TaskForm, usePageHeader } from "@/features";
+import { DragContext } from "@/features/DragAndDrop/DragContext";
+import { TaskItem } from "./TaskItem";
+import { TaskForm } from "./TaskForm";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
 import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
 import {
   Button,
@@ -12,9 +15,9 @@ import {
   List,
   Modal,
 } from "@/base";
-import css from "./Tasks.module.css";
+import css from "./TasksPage.module.css";
 
-export default function Tasks() {
+export function TasksPage() {
   const { tasks, addTask, reorderTasks } = useStore();
   const [showAddModal, setShowAddModal] = useState(false);
   const [filterToday, setFilterToday] = useState(false);

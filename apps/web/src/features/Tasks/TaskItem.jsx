@@ -3,8 +3,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useStore, PRIORITY_LABELS, INBOX_PROJECT_ID } from "@/lib/store";
 import { formatTime } from "@/lib/date";
-import { TaskForm } from "../TaskForm/TaskForm";
-import { PriorityBadge } from "../PriorityBadge/PriorityBadge";
+import { TaskForm } from "./TaskForm";
+import { PriorityBadge } from "./PriorityBadge";
 import {
   Button,
   IconBell,

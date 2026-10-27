@@ -457,6 +457,28 @@ Run `npm run format` so Prettier aligns the table, then commit: `chore: scaffold
 
 ---
 
+## Phase 2b — Flatten features and drop barrels
+
+Added after Phases 1–3 landed. The spec now calls for flat features with no barrels (spec §5.2), so this phase supersedes the `<Name>Page/` folders and `index.js` files created above.
+
+1. `git mv` every one-component folder's files up into the feature root (`features/Tasks/TaskItem/TaskItem.jsx` → `features/Tasks/TaskItem.jsx`, CSS modules alongside). Do the same for `Habits/components/*`, `Taskira/AppNavigation/`, `Auth/LoginPage/`, and `Auth/ProtectedRoute/`. Rename `Habits/constants/index.js` → `Habits/constants.js` and `Habits/functions/index.js` → `Habits/functions.js`.
+2. `git rm` every `features/*/index.js` and delete the now-empty folders.
+3. Rewrite in-feature imports to `./<File>` (e.g. `"../TaskForm/TaskForm"` → `"./TaskForm"`).
+4. Rewrite cross-feature imports to the exact file:
+   - `usePageHeader` → `@/features/Taskira/PageHeaderContext`
+   - `DragContext` → `@/features/DragAndDrop/DragContext`
+   - `PriorityBadge`, `TaskItem`, `TaskForm` → `@/features/Tasks/<File>`
+   - `HABIT_GROUPS` → `@/features/Habits/constants`
+5. `routes.jsx`: import each route component from its file (`@/features/Tasks/TasksPage`, `@/features/Auth/LoginPage`, …).
+6. `scripts/scaffold.js`: `feature <Name>` writes `features/<Name>/<Name>Page.jsx` + `.module.css` directly, with no subfolder and no `index.js`.
+7. `README.md`: update the scaffolding table and explanation to match.
+
+The Phase 4 checks for barrels (steps 2 and 4) no longer apply. Use the acceptance criteria in spec §7 instead.
+
+Commit: `refactor: flatten feature folders and drop barrels`
+
+---
+
 ## Phase 4 — Verify
 
 Run each check from the repo root. Every one must pass before opening the PR.

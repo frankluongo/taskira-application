@@ -26,18 +26,16 @@ To browse the base components, run `npm run dev` and open `#/kitchen-sink` (requ
 npm run scaffold ComponentName            # base component (default type)
 npm run scaffold component ComponentName
 npm run scaffold feature FeatureName
-npm run scaffold page PageName
 ```
 
-Generates a new folder with a JSX file, a companion CSS module, and an entry added to the relevant barrel `index.js` (kept alphabetized):
+| Type        | Creates                                                         | Barrel                                              |
+| ----------- | --------------------------------------------------------------- | --------------------------------------------------- |
+| `component` | `apps/web/src/base/components/<Name>/`                          | appended to `apps/web/src/base/components/index.js` |
+| `feature`   | `apps/web/src/features/<Name>/<Name>Page.jsx` (+ `.module.css`) | none                                                |
 
-| Type        | Location                               | Barrel                                  |
-| ----------- | -------------------------------------- | --------------------------------------- |
-| `component` | `apps/web/src/base/components/<Name>/` | `apps/web/src/base/components/index.js` |
-| `feature`   | `apps/web/src/features/<Name>/`        | `apps/web/src/features/index.js`        |
-| `page`      | `apps/web/src/pages/<Name>/`           | `apps/web/src/pages/index.js`           |
+Each feature folder is flat and holds everything for one product area: its page(s), components, constants, and helpers, one file each, with no subfolders or barrel. Other code imports a feature file directly (`@/features/<Name>/<File>`). Files inside a feature import each other by relative path (`./<File>`). After scaffolding a feature, add its page to `apps/web/src/routes.jsx`.
 
-Components get `className`/`variant` prop handling built in, since they're the design-system primitives other code composes. Features and pages get a plain component stub. Names must be PascalCase, and the command refuses to overwrite an existing directory.
+Components get `className`/`variant` prop handling built in, since they're the design-system primitives other code composes. Feature pages get a plain component stub. Names must be PascalCase, and the command refuses to overwrite an existing directory.
 
 ## Building locally
 

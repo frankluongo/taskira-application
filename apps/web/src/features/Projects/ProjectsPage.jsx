@@ -1,6 +1,9 @@
 import { useState, useRef } from "react";
 import { arrayMove } from "@dnd-kit/sortable";
-import { DragContext, TaskItem, TaskForm, usePageHeader } from "@/features";
+import { DragContext } from "@/features/DragAndDrop/DragContext";
+import { TaskItem } from "@/features/Tasks/TaskItem";
+import { TaskForm } from "@/features/Tasks/TaskForm";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
 import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
 import {
   Button,
@@ -12,9 +15,9 @@ import {
   Modal,
   Scroller,
 } from "@/base";
-import css from "./Projects.module.css";
+import css from "./ProjectsPage.module.css";
 
-export default function Projects() {
+export function ProjectsPage() {
   const {
     tasks,
     projects,

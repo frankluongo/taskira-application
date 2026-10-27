@@ -1,11 +1,12 @@
 import { getTodayString } from "@/lib/date";
 import { useStore } from "@/lib/store";
 import { FlexColumn, Heading, List, Section, Text, ToggleButton } from "@/base";
-import { PriorityBadge, usePageHeader } from "@/features";
-import { HABIT_GROUPS } from "@/features/Habits";
-import css from "./Today.module.css";
+import { PriorityBadge } from "@/features/Tasks/PriorityBadge";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
+import { HABIT_GROUPS } from "@/features/Habits/constants";
+import css from "./TodayPage.module.css";
 
-export default function Today() {
+export function TodayPage() {
   const {
     habitsDueToday,
     completeHabit,
