@@ -1,13 +1,19 @@
 {
   "$schema": "../../../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Taskira",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "identifier": "com.frankluongo.taskira",
   "build": {
     "frontendDist": "../../web/dist",
     "devUrl": "http://localhost:5173",
-    "beforeDevCommand": { "script": "npm run dev -w apps/web", "cwd": "../../../" },
-    "beforeBuildCommand": { "script": "npm run build -w apps/web", "cwd": "../../../" }
+    "beforeDevCommand": {
+      "script": "npm run dev -w apps/web",
+      "cwd": "../../../"
+    },
+    "beforeBuildCommand": {
+      "script": "npm run build -w apps/web",
+      "cwd": "../../../"
+    }
   },
   "app": {
     "windows": [
