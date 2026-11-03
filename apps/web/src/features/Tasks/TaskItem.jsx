@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useStore, PRIORITY_LABELS } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import { formatTime } from "@/lib/date";
 import { TaskForm } from "./TaskForm";
 import { PriorityBadge } from "./PriorityBadge";
+import { PRIORITIES, PRIORITY_LABELS } from "./constants";
 import {
   Button,
   IconBell,
@@ -176,9 +177,9 @@ function PrioritySelect({ value, onChange }) {
       onChange={(e) => onChange(Number(e.target.value))}
       className={css.prioritySelect}
     >
-      {[5, 4, 3, 2, 1].map((p) => (
+      {PRIORITIES.map((p) => (
         <option key={p} value={p}>
-          {PRIORITY_LABELS[p].label}
+          {PRIORITY_LABELS[p]}
         </option>
       ))}
     </select>

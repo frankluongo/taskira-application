@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, FieldsRow, Form, Input, Select } from "@/base";
+import { PRIORITIES, PRIORITY_LABELS } from "./constants";
 
 export function TaskForm({
   initialValues = {},
@@ -46,9 +47,9 @@ export function TaskForm({
           value={priority}
           onChange={(e) => setPriority(Number(e.target.value))}
         >
-          {[5, 4, 3, 2, 1].map((p) => (
+          {PRIORITIES.map((p) => (
             <option key={p} value={p}>
-              {["", "Someday", "Low", "Medium", "High", "Critical"][p]}
+              {PRIORITY_LABELS[p]}
             </option>
           ))}
         </Select>
