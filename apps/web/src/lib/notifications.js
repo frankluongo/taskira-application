@@ -1,5 +1,6 @@
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { Capacitor } from "@capacitor/core";
+import { occursOn } from "./habits";
 
 // Stable numeric ID derived from a UUID string (Capacitor requires integer IDs)
 function notifId(uuid) {
@@ -18,17 +19,7 @@ function nextHabitOccurrence(habit) {
     const candidate = new Date(now);
     candidate.setDate(now.getDate() + i);
     candidate.setHours(h, m, 0, 0);
-    if (candidate <= now) continue;
-    const dow = candidate.getDay();
-    if (habit.recurrence === "daily") return candidate;
-    if (habit.recurrence === "weekdays" && dow >= 1 && dow <= 5)
-      return candidate;
-    if (habit.recurrence === "weekends" && (dow === 0 || dow === 6))
-      return candidate;
-    if (
-      habit.recurrence === "specific_days" &&
-      habit.recurrence_days?.includes(dow)
-    )
+    if (candidate > now && occursOn(habit, candidate.getDay()))
       return candidate;
   }
   return null;

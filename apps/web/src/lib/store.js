@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { format } from "date-fns";
 import { supabase } from "./supabase";
+import { occursOn } from "./habits";
 import {
   scheduleHabitNotification,
   cancelHabitNotification,
@@ -163,12 +164,7 @@ export const useStore = create((set, get) => ({
         return false;
       if (h.start_date && h.start_date > d) return false;
       if (h.end_date && h.end_date < d) return false;
-      if (h.recurrence === "daily") return true;
-      if (h.recurrence === "weekdays") return dow >= 1 && dow <= 5;
-      if (h.recurrence === "weekends") return dow === 0 || dow === 6;
-      if (h.recurrence === "specific_days")
-        return h.recurrence_days?.includes(dow);
-      return true;
+      return occursOn(h, dow);
     });
   },
 
