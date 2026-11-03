@@ -5,7 +5,7 @@ import { DragContext } from "@/features/DragAndDrop/DragContext";
 import { TaskItem } from "./TaskItem";
 import { TaskForm } from "./TaskForm";
 import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
-import { useStore, INBOX_PROJECT_ID } from "@/lib/store";
+import { useStore } from "@/lib/store";
 import {
   Button,
   Float,
@@ -24,7 +24,7 @@ export function TasksPage() {
   const [dragMode, setDragMode] = useState(false);
 
   const topLevelTasks = tasks
-    .filter((t) => !t.parent_task_id && t.project_id === INBOX_PROJECT_ID)
+    .filter((t) => !t.parent_task_id)
     .filter((t) => !filterToday || t.due_date === getTodayString())
     .sort((a, b) => b.priority - a.priority || a.sort_order - b.sort_order);
 
@@ -92,11 +92,7 @@ export function TasksPage() {
         onClose={() => setShowAddModal(false)}
         title="Add Task"
       >
-        <TaskForm
-          initialValues={{ priority: 3, project_id: INBOX_PROJECT_ID }}
-          onSubmit={handleAddTask}
-          submitLabel="Add Task"
-        />
+        <TaskForm onSubmit={handleAddTask} submitLabel="Add Task" />
       </Modal>
       <Float>
         <Button

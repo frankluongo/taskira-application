@@ -6,8 +6,8 @@ import { supabase } from "@/lib/supabase";
 import {
   cancelAllPendingNotifications,
   requestNotificationPermission,
-  rescheduleAllHabitNotifications,
-  rescheduleAllTaskNotifications,
+  scheduleAllHabitNotifications,
+  scheduleAllTaskNotifications,
 } from "@/lib/notifications";
 import { Spinner } from "@/base";
 import { AppNavigation } from "./AppNavigation";
@@ -15,21 +15,23 @@ import { PageHeaderContext } from "./PageHeaderContext";
 import css from "./Taskira.module.css";
 
 export function Taskira() {
-  const { initialize, initialized, habits, tasks } = useStore();
+  const { initialize, initialized } = useStore();
   const { user } = useAuth();
   const [pageHeader, setPageHeader] = useState({ title: "", action: null });
 
   useEffect(() => {
     if (user) initialize();
-  }, [user]);
+  }, [user, initialize]);
 
   useEffect(() => {
     if (!initialized) return;
+    // Read once at startup; store actions handle each change after that
+    const { habits, tasks } = useStore.getState();
     requestNotificationPermission()
       .then(cancelAllPendingNotifications)
       .then(() => {
-        rescheduleAllHabitNotifications(habits);
-        rescheduleAllTaskNotifications(tasks);
+        scheduleAllHabitNotifications(habits);
+        scheduleAllTaskNotifications(tasks);
       });
   }, [initialized]);
 
@@ -39,36 +41,32 @@ export function Taskira() {
     supabase.auth.signOut();
   }
 
-  const outlet = (
-    <PageHeaderContext.Provider value={setPageHeader}>
-      <Outlet />
-    </PageHeaderContext.Provider>
-  );
-
-  if (!user) return outlet;
-
   return (
-    <>
-      <header className={css.siteHeader}>
-        <h1 className={css.siteTitle}>Taskira</h1>
-        <button onClick={handleLogout} className={css.signOut}>
-          Sign out
-        </button>
-      </header>
-      <main className={css.main}>
-        {pageHeader.title && (
-          <header className={css.pageHeader}>
-            <h2 className={css.pageTitle}>{pageHeader.title}</h2>
-            {pageHeader.action}
+    <PageHeaderContext.Provider value={setPageHeader}>
+      {user ? (
+        <>
+          <header className={css.siteHeader}>
+            <h1 className={css.siteTitle}>Taskira</h1>
+            <button onClick={handleLogout} className={css.signOut}>
+              Sign out
+            </button>
           </header>
-        )}
-        <div className={css.content}>
-          <PageHeaderContext.Provider value={setPageHeader}>
-            <Outlet />
-          </PageHeaderContext.Provider>
-        </div>
-      </main>
-      <AppNavigation />
-    </>
+          <main className={css.main}>
+            {pageHeader.title && (
+              <header className={css.pageHeader}>
+                <h2 className={css.pageTitle}>{pageHeader.title}</h2>
+                {pageHeader.action}
+              </header>
+            )}
+            <div className={css.content}>
+              <Outlet />
+            </div>
+          </main>
+          <AppNavigation />
+        </>
+      ) : (
+        <Outlet />
+      )}
+    </PageHeaderContext.Provider>
   );
 }

@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { format } from "date-fns";
 import { supabase } from "./supabase";
+import { getTodayString } from "./date";
+import { occursOn } from "./habits";
 import {
   scheduleHabitNotification,
   cancelHabitNotification,
@@ -8,9 +9,7 @@ import {
   cancelTaskNotification,
 } from "./notifications";
 
-export const INBOX_PROJECT_ID = "00000000-0000-0000-0000-000000000001";
-
-const today = () => format(new Date(), "yyyy-MM-dd");
+const INBOX_PROJECT_ID = "00000000-0000-0000-0000-000000000001";
 
 export const useStore = create((set, get) => ({
   habits: [],
@@ -34,7 +33,7 @@ export const useStore = create((set, get) => ({
       supabase
         .from("habit_completions")
         .select("*")
-        .eq("completed_on", today()),
+        .eq("completed_on", getTodayString()),
       supabase
         .from("tasks")
         .select("*")
@@ -44,7 +43,7 @@ export const useStore = create((set, get) => ({
       supabase.from("checklist_sections").select("*").order("sort_order"),
       supabase.from("checklist_items").select("*").order("sort_order"),
     ]);
-    const d = today();
+    const d = getTodayString();
     const expiredHabits = (habits || []).filter(
       (h) => h.end_date && h.end_date < d,
     );
@@ -119,7 +118,7 @@ export const useStore = create((set, get) => ({
   },
 
   completeHabit: async (habit_id) => {
-    const date = today();
+    const date = getTodayString();
     if (
       get().habit_completions.some(
         (c) => c.habit_id === habit_id && c.completed_on === date,
@@ -132,7 +131,7 @@ export const useStore = create((set, get) => ({
   },
 
   uncompleteHabit: async (habit_id) => {
-    const date = today();
+    const date = getTodayString();
     set((s) => ({
       habit_completions: s.habit_completions.filter(
         (c) => !(c.habit_id === habit_id && c.completed_on === date),
@@ -147,12 +146,12 @@ export const useStore = create((set, get) => ({
 
   isHabitDoneToday: (habit_id) =>
     get().habit_completions.some(
-      (c) => c.habit_id === habit_id && c.completed_on === today(),
+      (c) => c.habit_id === habit_id && c.completed_on === getTodayString(),
     ),
 
   habitsDueToday: () => {
     const { habits, habit_completions } = get();
-    const d = today();
+    const d = getTodayString();
     const dow = new Date().getDay();
     return habits.filter((h) => {
       if (
@@ -163,12 +162,7 @@ export const useStore = create((set, get) => ({
         return false;
       if (h.start_date && h.start_date > d) return false;
       if (h.end_date && h.end_date < d) return false;
-      if (h.recurrence === "daily") return true;
-      if (h.recurrence === "weekdays") return dow >= 1 && dow <= 5;
-      if (h.recurrence === "weekends") return dow === 0 || dow === 6;
-      if (h.recurrence === "specific_days")
-        return h.recurrence_days?.includes(dow);
-      return true;
+      return occursOn(h, dow);
     });
   },
 
@@ -177,6 +171,7 @@ export const useStore = create((set, get) => ({
     const row = {
       id: crypto.randomUUID(),
       sort_order: get().tasks.length,
+      project_id: INBOX_PROJECT_ID,
       parent_task_id: null,
       ...task,
     };
@@ -378,11 +373,3 @@ export const useStore = create((set, get) => ({
     );
   },
 }));
-
-export const PRIORITY_LABELS = {
-  5: { label: "Critical" },
-  4: { label: "High" },
-  3: { label: "Medium" },
-  2: { label: "Low" },
-  1: { label: "Someday" },
-};

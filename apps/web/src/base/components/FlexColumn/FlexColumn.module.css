@@ -12,12 +12,4 @@
   .flexColumn.md {
     gap: 1rem;
   }
-
-  .flexColumn.lg {
-    gap: 2rem;
-  }
-
-  .flexColumn.xl {
-    gap: 3rem;
-  }
 }

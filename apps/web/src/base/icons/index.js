@@ -8,8 +8,6 @@ export * from "./IconClipboard";
 export * from "./IconClose";
 export * from "./IconDrag";
 export * from "./IconEdit";
-export * from "./IconFolder";
 export * from "./IconGrip";
-export * from "./IconList";
 export * from "./IconPlus";
 export * from "./IconTrash";

@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { useStore, PRIORITY_LABELS } from "@/lib/store";
+import { useSortableItem } from "@/features/DragAndDrop/useSortableItem";
+import { useStore } from "@/lib/store";
 import { formatTime } from "@/lib/date";
 import { TaskForm } from "./TaskForm";
 import { PriorityBadge } from "./PriorityBadge";
+import { PRIORITIES, PRIORITY_LABELS } from "./constants";
 import {
   Button,
   IconBell,
@@ -16,26 +16,14 @@ import {
 } from "@/base";
 import css from "./TaskItem.module.css";
 
-export function TaskItem({ task, subtasks = [] }) {
+export function TaskItem({ task, subtasks = [], dragMode = false }) {
   const { completeTask, updateTask, deleteTask, addTask } = useStore();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSubtaskForm, setShowSubtaskForm] = useState(false);
   const [subtaskName, setSubtaskName] = useState("");
   const [expanded, setExpanded] = useState(true);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(task.id);
 
   function addSubtask(e) {
     e.preventDefault();
@@ -43,7 +31,6 @@ export function TaskItem({ task, subtasks = [] }) {
     if (!trimmed) return;
     addTask({
       name: trimmed,
-      project_id: task.project_id,
       parent_task_id: task.id,
       priority: 1,
     });
@@ -54,9 +41,11 @@ export function TaskItem({ task, subtasks = [] }) {
   return (
     <div ref={setNodeRef} style={style} className={css.item}>
       <div className={css.row}>
-        <button {...attributes} {...listeners} className={css.grip}>
-          <IconGrip />
-        </button>
+        {dragMode && (
+          <button {...handleProps} className={css.grip}>
+            <IconGrip />
+          </button>
+        )}
 
         <ToggleButton
           variant="md"
@@ -175,9 +164,9 @@ function PrioritySelect({ value, onChange }) {
       onChange={(e) => onChange(Number(e.target.value))}
       className={css.prioritySelect}
     >
-      {[5, 4, 3, 2, 1].map((p) => (
+      {PRIORITIES.map((p) => (
         <option key={p} value={p}>
-          {PRIORITY_LABELS[p].label}
+          {PRIORITY_LABELS[p]}
         </option>
       ))}
     </select>

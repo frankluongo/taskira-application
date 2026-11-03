@@ -12,7 +12,7 @@ export function TodayPage() {
   const today = getTodayString();
   const habits = habitsDueToday();
   const todayTasks = tasks
-    .filter((t) => !t.parent_task_id && !t.completed_at && t.due_date === today)
+    .filter((t) => !t.parent_task_id && t.due_date === today)
     .sort((a, b) => b.priority - a.priority);
 
   const hasAnything = habits.length + todayTasks.length > 0;

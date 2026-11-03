@@ -1,31 +1,17 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  useDroppable,
-} from "@dnd-kit/core";
+import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
   SortableContext,
-  verticalListSortingStrategy,
   horizontalListSortingStrategy,
-  useSortable,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useDragSensors } from "@/features/DragAndDrop/useDragSensors";
 import { useStore } from "@/lib/store";
 import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
-import {
-  Button,
-  IconCheckmark,
-  IconEdit,
-  IconGrip,
-  IconPlus,
-  IconTrash,
-} from "@/base";
+import { Button, IconCheckmark, IconEdit, IconPlus, IconTrash } from "@/base";
+import { ItemContainer } from "./ItemContainer";
+import { SectionChip } from "./SectionChip";
 import css from "./ChecklistDetailPage.module.css";
 
 function containerKey(sectionId) {
@@ -68,9 +54,7 @@ export function ChecklistDetailPage() {
     .filter((i) => !i.section_id)
     .sort((a, b) => a.sort_order - b.sort_order);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-  );
+  const sensors = useDragSensors();
 
   usePageHeader(
     checklist
@@ -276,153 +260,5 @@ export function ChecklistDetailPage() {
         </Button>
       )}
     </>
-  );
-}
-
-function SectionChip({ section }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
-  return (
-    <button
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={css.chip}
-    >
-      {section.name}
-    </button>
-  );
-}
-
-function ItemContainer({
-  containerId,
-  items,
-  editing,
-  onToggle,
-  onRename,
-  onDelete,
-  onAdd,
-}) {
-  const { setNodeRef } = useDroppable({ id: containerId });
-  const [showAdd, setShowAdd] = useState(false);
-  const [newName, setNewName] = useState("");
-
-  function handleAdd(e) {
-    e.preventDefault();
-    const trimmed = newName.trim();
-    if (!trimmed) return;
-    onAdd(trimmed);
-    setNewName("");
-    setShowAdd(false);
-  }
-
-  return (
-    <div ref={setNodeRef} className={css.itemContainer}>
-      <SortableContext
-        items={items.map((i) => i.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        {items.map((item) => (
-          <ChecklistItemRow
-            key={item.id}
-            item={item}
-            editing={editing}
-            onToggle={onToggle}
-            onRename={onRename}
-            onDelete={onDelete}
-          />
-        ))}
-      </SortableContext>
-      {editing && !showAdd && (
-        <button className={css.addItem} onClick={() => setShowAdd(true)}>
-          <IconPlus /> Item
-        </button>
-      )}
-      {editing && showAdd && (
-        <form onSubmit={handleAdd} className={css.addItemForm}>
-          <input
-            autoFocus
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="Item name…"
-            className={css.addItemInput}
-          />
-          <button type="submit" className={css.addItemSubmit}>
-            Add
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowAdd(false)}
-            className={css.addItemCancel}
-          >
-            Cancel
-          </button>
-        </form>
-      )}
-    </div>
-  );
-}
-
-function ChecklistItemRow({ item, editing, onToggle, onRename, onDelete }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
-
-  if (editing) {
-    return (
-      <div ref={setNodeRef} style={style} className={css.itemRow}>
-        <button {...attributes} {...listeners} className={css.grip}>
-          <IconGrip />
-        </button>
-        <span
-          className={css.itemName}
-          onClick={() => {
-            const name = prompt("Item name?", item.name);
-            if (name?.trim()) onRename(item.id, name.trim());
-          }}
-        >
-          {item.name}
-        </span>
-        <Button onClick={() => onDelete(item.id)} variant="icon secondary slim">
-          <IconTrash />
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <label ref={setNodeRef} style={style} className={css.itemRow}>
-      <input
-        type="checkbox"
-        checked={item.checked}
-        onChange={() => onToggle(item.id)}
-        className={css.checkbox}
-      />
-      <span className={`${css.itemName} ${item.checked ? css.checked : ""}`}>
-        {item.name}
-      </span>
-    </label>
   );
 }

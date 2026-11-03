@@ -18,8 +18,6 @@ npm run dev          # web-only, in the browser
 npm run tauri:dev    # desktop app, hot-reloading
 ```
 
-To browse the base components, run `npm run dev` and open `#/kitchen-sink` (requires sign-in).
-
 ## Scaffolding
 
 ```

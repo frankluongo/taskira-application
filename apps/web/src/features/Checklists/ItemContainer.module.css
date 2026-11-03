@@ -1,0 +1,8 @@
+@layer features {
+  .itemContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-inline-start: 1rem;
+  }
+}

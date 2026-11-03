@@ -8,10 +8,4 @@
   .group + .group {
     margin-block-start: 1.5rem;
   }
-
-  .empty {
-    color: var(--theme-color-text-400);
-    font-size: 0.875rem;
-    font-style: italic;
-  }
 }
