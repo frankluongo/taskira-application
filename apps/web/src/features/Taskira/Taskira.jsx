@@ -5,7 +5,6 @@ import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import {
   requestNotificationPermission,
-  rescheduleAllChoreNotifications,
   rescheduleAllHabitNotifications,
   rescheduleAllTaskNotifications,
 } from "@/lib/notifications";
@@ -15,7 +14,7 @@ import { PageHeaderContext } from "./PageHeaderContext";
 import css from "./Taskira.module.css";
 
 export function Taskira() {
-  const { initialize, initialized, chores, habits, tasks } = useStore();
+  const { initialize, initialized, habits, tasks } = useStore();
   const { user } = useAuth();
   // Stored but not rendered yet (spec §8 #1); Phase 2 renders it.
   // eslint-disable-next-line no-unused-vars
@@ -28,7 +27,6 @@ export function Taskira() {
   useEffect(() => {
     if (!initialized) return;
     requestNotificationPermission().then(() => {
-      rescheduleAllChoreNotifications(chores);
       rescheduleAllHabitNotifications(habits);
       rescheduleAllTaskNotifications(tasks);
     });

@@ -42,58 +42,6 @@ export async function requestNotificationPermission() {
   }
 }
 
-export async function scheduleChoreNotification(chore) {
-  if (!Capacitor.isNativePlatform()) return;
-  if (!chore.due_date || !chore.alarm_time) return;
-  const at = new Date(`${chore.due_date}T${chore.alarm_time}`);
-  if (at <= new Date()) return;
-  const { display } = await LocalNotifications.checkPermissions();
-  if (display !== "granted") return;
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        id: notifId(chore.id),
-        title: "Chore Reminder",
-        body: chore.name,
-        schedule: { at },
-      },
-    ],
-  });
-}
-
-export async function cancelChoreNotification(choreId) {
-  if (!Capacitor.isNativePlatform()) return;
-  await LocalNotifications.cancel({
-    notifications: [{ id: notifId(choreId) }],
-  });
-}
-
-export async function rescheduleAllChoreNotifications(chores) {
-  if (!Capacitor.isNativePlatform()) return;
-  const { display } = await LocalNotifications.checkPermissions();
-  if (display !== "granted") return;
-
-  const ids = chores
-    .filter((e) => e.alarm_time)
-    .map((e) => ({ id: notifId(e.id) }));
-  if (ids.length > 0) await LocalNotifications.cancel({ notifications: ids });
-
-  const now = new Date();
-  const toSchedule = chores
-    .filter((e) => e.due_date && e.alarm_time)
-    .map((e) => ({ chore: e, at: new Date(`${e.due_date}T${e.alarm_time}`) }))
-    .filter(({ at }) => at > now)
-    .map(({ chore, at }) => ({
-      id: notifId(chore.id),
-      title: "Chore Reminder",
-      body: chore.name,
-      schedule: { at },
-    }));
-
-  if (toSchedule.length > 0)
-    await LocalNotifications.schedule({ notifications: toSchedule });
-}
-
 export async function scheduleHabitNotification(habit) {
   if (!Capacitor.isNativePlatform()) return;
   if (!habit.alarm_time) return;
