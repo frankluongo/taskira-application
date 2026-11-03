@@ -1,6 +1,6 @@
 # Simplify the Repo — Feature Spec
 
-**Status:** Accepted · **Date:** 2026-11-03 · **Scope:** `apps/web` (base, features, lib), plus small cleanups in repo config, `apps/tauri`, and CI · **Plan:** [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)
+**Status:** Done · **Date:** 2026-11-03 · **Scope:** `apps/web` (base, features, lib), plus small cleanups in repo config, `apps/tauri`, and CI · **Plan:** [IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)
 
 ## 1. Summary
 
@@ -202,16 +202,16 @@ The step-by-step order, with commands and code, is in the [implementation plan](
 
 ## 8. Acceptance criteria
 
-- [ ] CI passes on the branch. `npm run lint` reports **0 errors and 0 warnings**.
-- [ ] The files in §4.2.1 and §4.2.2 don't exist, and `base/components/index.js` doesn't export `Header`, `Scroller`, `Container`, or `Disclosure`.
-- [ ] `grep -rni "kitchen" apps/web/src README.md` returns nothing.
-- [ ] `grep -rn "completed_at\|useDragMode" apps/web/src` returns nothing, and `grep -rn "PRIORITY_LABELS" apps/web/src/lib` returns nothing.
-- [ ] `grep -rn "INBOX_PROJECT_ID" apps/web/src` only matches `lib/store.js`.
-- [ ] `grep -rn '"AM", "Misc", "PM"' apps/web/src` matches only `features/Habits/constants.js`.
-- [ ] `grep -rn "CSS.Transform.toString" apps/web/src` matches only `features/DragAndDrop/`.
-- [ ] Habit recurrence is decided in one function (`lib/habits.js`), and `lib/habits.test.js` covers all four recurrence types.
-- [ ] No `version` field in `apps/*/package.json`. `npm run deploy` still bumps the root `package.json` and `tauri.conf.json` the same way it does today.
-- [ ] In `npm run dev`, every route works as before: `/login`, `/`, `/habits`, `/tasks`, `/checklists`, `/checklists/:id`. `#/kitchen-sink` falls through like any unknown route. Adding, editing, completing, reordering, and deleting work for habits, tasks, subtasks, checklist sections, and checklist items.
-- [ ] On Tasks, the grip only shows when the drag-mode toggle is on, and dragging still reorders tasks.
-- [ ] Nothing in `apps/tauri/src-tauri` mentions `opener`, except generated files. `npm run tauri:build` succeeds, and the built `Taskira.app` launches, signs in, and can be dragged by its title bar.
-- [ ] On iOS, habit and task reminders are still scheduled after an add, an edit, and a relaunch.
+- [x] CI passes on the branch. `npm run lint` reports **0 errors and 0 warnings**.
+- [x] The files in §4.2.1 and §4.2.2 don't exist, and `base/components/index.js` doesn't export `Header`, `Scroller`, `Container`, or `Disclosure`.
+- [x] `grep -rni "kitchen" apps/web/src README.md` returns nothing.
+- [x] `grep -rn "completed_at\|useDragMode" apps/web/src` returns nothing, and `grep -rn "PRIORITY_LABELS" apps/web/src/lib` returns nothing.
+- [x] `grep -rn "INBOX_PROJECT_ID" apps/web/src` only matches `lib/store.js`.
+- [x] `grep -rn '"AM", "Misc", "PM"' apps/web/src` matches only `features/Habits/constants.js`.
+- [x] `grep -rn "CSS.Transform.toString" apps/web/src` matches only `features/DragAndDrop/`.
+- [x] Habit recurrence is decided in one function (`lib/habits.js`), and `lib/habits.test.js` covers all four recurrence types.
+- [x] No `version` field in `apps/*/package.json`. `npm run deploy` still bumps the root `package.json` and `tauri.conf.json` the same way it does today.
+- [x] In `npm run dev`, every route works as before: `/login`, `/`, `/habits`, `/tasks`, `/checklists`, `/checklists/:id`. `#/kitchen-sink` falls through like any unknown route. Adding, editing, completing, reordering, and deleting work for habits, tasks, subtasks, checklist sections, and checklist items.
+- [x] On Tasks, the grip only shows when the drag-mode toggle is on, and dragging still reorders tasks.
+- [x] Nothing in `apps/tauri/src-tauri` mentions `opener`, except generated files. `npm run tauri:build` succeeds, and the built `Taskira.app` launches, signs in, and can be dragged by its title bar.
+- [x] On iOS, habit and task reminders are still scheduled after an add, an edit, and a relaunch.
