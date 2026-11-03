@@ -39,36 +39,32 @@ export function Taskira() {
     supabase.auth.signOut();
   }
 
-  const outlet = (
-    <PageHeaderContext.Provider value={setPageHeader}>
-      <Outlet />
-    </PageHeaderContext.Provider>
-  );
-
-  if (!user) return outlet;
-
   return (
-    <>
-      <header className={css.siteHeader}>
-        <h1 className={css.siteTitle}>Taskira</h1>
-        <button onClick={handleLogout} className={css.signOut}>
-          Sign out
-        </button>
-      </header>
-      <main className={css.main}>
-        {pageHeader.title && (
-          <header className={css.pageHeader}>
-            <h2 className={css.pageTitle}>{pageHeader.title}</h2>
-            {pageHeader.action}
+    <PageHeaderContext.Provider value={setPageHeader}>
+      {user ? (
+        <>
+          <header className={css.siteHeader}>
+            <h1 className={css.siteTitle}>Taskira</h1>
+            <button onClick={handleLogout} className={css.signOut}>
+              Sign out
+            </button>
           </header>
-        )}
-        <div className={css.content}>
-          <PageHeaderContext.Provider value={setPageHeader}>
-            <Outlet />
-          </PageHeaderContext.Provider>
-        </div>
-      </main>
-      <AppNavigation />
-    </>
+          <main className={css.main}>
+            {pageHeader.title && (
+              <header className={css.pageHeader}>
+                <h2 className={css.pageTitle}>{pageHeader.title}</h2>
+                {pageHeader.action}
+              </header>
+            )}
+            <div className={css.content}>
+              <Outlet />
+            </div>
+          </main>
+          <AppNavigation />
+        </>
+      ) : (
+        <Outlet />
+      )}
+    </PageHeaderContext.Provider>
   );
 }

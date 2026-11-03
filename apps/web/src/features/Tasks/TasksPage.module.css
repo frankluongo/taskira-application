@@ -11,10 +11,4 @@
     margin-block-start: 3rem;
     text-align: center;
   }
-
-  .renameForm {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
 }

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { INBOX_PROJECT_ID } from "@/lib/store";
 import { Button, FieldsRow, Form, Input, Select } from "@/base";
 
 export function TaskForm({
@@ -9,7 +8,6 @@ export function TaskForm({
 }) {
   const [name, setName] = useState(initialValues.name ?? "");
   const [priority, setPriority] = useState(initialValues.priority ?? 3);
-  const projectId = initialValues.project_id ?? INBOX_PROJECT_ID;
   const [dueDate, setDueDate] = useState(initialValues.due_date ?? "");
   const [alarmTime, setAlarmTime] = useState(initialValues.alarm_time ?? "");
 
@@ -20,7 +18,6 @@ export function TaskForm({
     onSubmit({
       name: trimmed,
       priority,
-      project_id: projectId,
       due_date: dueDate || null,
       alarm_time: alarmTime || null,
     });

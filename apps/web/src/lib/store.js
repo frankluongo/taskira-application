@@ -8,7 +8,7 @@ import {
   cancelTaskNotification,
 } from "./notifications";
 
-export const INBOX_PROJECT_ID = "00000000-0000-0000-0000-000000000001";
+const INBOX_PROJECT_ID = "00000000-0000-0000-0000-000000000001";
 
 const today = () => format(new Date(), "yyyy-MM-dd");
 
@@ -177,6 +177,7 @@ export const useStore = create((set, get) => ({
     const row = {
       id: crypto.randomUUID(),
       sort_order: get().tasks.length,
+      project_id: INBOX_PROJECT_ID,
       parent_task_id: null,
       ...task,
     };

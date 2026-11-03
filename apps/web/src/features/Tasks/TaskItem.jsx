@@ -43,7 +43,6 @@ export function TaskItem({ task, subtasks = [] }) {
     if (!trimmed) return;
     addTask({
       name: trimmed,
-      project_id: task.project_id,
       parent_task_id: task.id,
       priority: 1,
     });

@@ -102,7 +102,7 @@ export async function rescheduleAllHabitNotifications(habits) {
 
 export async function scheduleTaskNotification(task) {
   if (!Capacitor.isNativePlatform()) return;
-  if (task.completed_at || !task.due_date || !task.alarm_time) return;
+  if (!task.due_date || !task.alarm_time) return;
   const at = new Date(`${task.due_date}T${task.alarm_time}`);
   if (at <= new Date()) return;
   const { display } = await LocalNotifications.checkPermissions();
@@ -136,7 +136,7 @@ export async function rescheduleAllTaskNotifications(tasks) {
 
   const now = new Date();
   const toSchedule = tasks
-    .filter((t) => !t.completed_at && t.due_date && t.alarm_time)
+    .filter((t) => t.due_date && t.alarm_time)
     .map((t) => ({ task: t, at: new Date(`${t.due_date}T${t.alarm_time}`) }))
     .filter(({ at }) => at > now)
     .map(({ task, at }) => ({
