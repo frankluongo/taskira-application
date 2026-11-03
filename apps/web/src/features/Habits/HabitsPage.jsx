@@ -6,14 +6,13 @@ import { HabitForm } from "./HabitForm";
 import { HabitItem } from "./HabitItem";
 
 import { useStore } from "@/lib/store";
+import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
 import {
   Button,
   Container,
   Details,
   FlexColumn,
   Float,
-  Header,
-  Heading,
   IconCalendar,
   IconCheckmark,
   IconDrag,
@@ -36,95 +35,96 @@ export function HabitsPage() {
     ? new Set(habitsDueToday().map((h) => h.id))
     : null;
 
+  usePageHeader({
+    title: "Habits",
+    action: (
+      <div className={css.actions}>
+        <Button
+          aria-label="Toggle filter today"
+          aria-pressed={filterToday}
+          onClick={() => setFilterToday((x) => !x)}
+          variant="icon slim secondary"
+          title="Toggle today filter"
+        >
+          <IconCalendar />
+        </Button>
+        <Button
+          aria-label="Toggle show completed habits"
+          aria-pressed={showCompleted}
+          onClick={() => setShowCompleted((x) => !x)}
+          variant="icon slim secondary"
+          title="Toggle show completed habits"
+        >
+          <IconCheckmark />
+        </Button>
+        <Button
+          aria-label="Toggle drag mode"
+          aria-pressed={dragMode}
+          onClick={() => setDragMode((x) => !x)}
+          variant="icon slim secondary"
+          title="Toggle drag mode"
+        >
+          <IconDrag />
+        </Button>
+      </div>
+    ),
+  });
+
   return (
     <FlexColumn>
-      <Header variant="page">
-        <Heading>Habits</Heading>
-        <div className={css.actions}>
-          <Button
-            aria-label="Toggle filter today"
-            aria-pressed={filterToday}
-            onClick={() => setFilterToday((x) => !x)}
-            variant="icon slim secondary"
-            title="Toggle today filter"
-          >
-            <IconCalendar />
-          </Button>
-          <Button
-            aria-label="Toggle show completed habits"
-            aria-pressed={showCompleted}
-            onClick={() => setShowCompleted((x) => !x)}
-            variant="icon slim secondary"
-            title="Toggle show completed habits"
-          >
-            <IconCheckmark />
-          </Button>
-          <Button
-            aria-label="Toggle drag mode"
-            aria-pressed={dragMode}
-            onClick={() => setDragMode((x) => !x)}
-            variant="icon slim secondary"
-            title="Toggle drag mode"
-          >
-            <IconDrag />
-          </Button>
-        </div>
-      </Header>
-      <Container>
-        <FlexColumn>
-          {GROUPS.map((group) => {
-            const allGroupHabits = habits
-              .filter((h) => h.group_name === group)
-              .filter((h) => !filterToday || todayHabitIds.has(h.id))
-              .sort((a, b) => a.sort_order - b.sort_order);
-            if (allGroupHabits.length === 0 && !showForm) return null;
-            const visibleHabits = showCompleted
-              ? allGroupHabits
-              : allGroupHabits.filter((h) => !isHabitDoneToday(h.id));
-            return (
-              <Details key={group} summary={group}>
-                <DragContext
-                  items={visibleHabits}
-                  onDragEnd={(e) => handleDragEnd(group, e)}
-                >
-                  <List>
-                    {visibleHabits.map((habit) => (
-                      <HabitItem
-                        key={habit.id}
-                        habit={habit}
-                        dragMode={dragMode}
-                      />
-                    ))}
-                  </List>
-                </DragContext>
-              </Details>
-            );
-          })}
-        </FlexColumn>
-        <Float>
-          <Button
-            variant="icon"
-            aria-expanded={showForm}
-            aria-label="Add Habit"
-            onClick={() => setShowForm((x) => !x)}
-          >
-            <IconPlus />
-          </Button>
-        </Float>
-        <Modal
-          open={showForm}
-          onClose={() => setShowForm(false)}
-          title="Add Habit"
+      <FlexColumn>
+        {GROUPS.map((group) => {
+          const allGroupHabits = habits
+            .filter((h) => h.group_name === group)
+            .filter((h) => !filterToday || todayHabitIds.has(h.id))
+            .sort((a, b) => a.sort_order - b.sort_order);
+          if (allGroupHabits.length === 0 && !showForm) return null;
+          const visibleHabits = showCompleted
+            ? allGroupHabits
+            : allGroupHabits.filter((h) => !isHabitDoneToday(h.id));
+          return (
+            <Details key={group} summary={group}>
+              <DragContext
+                items={visibleHabits}
+                onDragEnd={(e) => handleDragEnd(group, e)}
+              >
+                <List>
+                  {visibleHabits.map((habit) => (
+                    <HabitItem
+                      key={habit.id}
+                      habit={habit}
+                      dragMode={dragMode}
+                    />
+                  ))}
+                </List>
+              </DragContext>
+            </Details>
+          );
+        })}
+      </FlexColumn>
+      <Float>
+        <Button
+          variant="icon"
+          aria-expanded={showForm}
+          aria-label="Add Habit"
+          onClick={() => setShowForm((x) => !x)}
         >
-          <HabitForm
-            onSubmit={(habit) => {
-              addHabit(habit);
-              setShowForm(false);
-            }}
-            submitLabel="Add Habit"
-          />
-        </Modal>
-      </Container>
+          <IconPlus />
+        </Button>
+      </Float>
+      <Modal
+        open={showForm}
+        onClose={() => setShowForm(false)}
+        title="Add Habit"
+      >
+        <HabitForm
+          onSubmit={(habit) => {
+            addHabit(habit);
+            setShowForm(false);
+          }}
+          submitLabel="Add Habit"
+        />
+      </Modal>
     </FlexColumn>
   );
 

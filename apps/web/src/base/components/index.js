@@ -11,7 +11,6 @@ export * from "./Heading/Heading";
 export * from "./Hyperlink/Hyperlink";
 export * from "./Input/Input";
 export * from "./List/List";
-export * from "./Main/Main";
 export * from "./Modal/Modal";
 export * from "./Navigation/Navigation";
 export * from "./Scroller/Scroller";
