@@ -7,24 +7,15 @@ import { HABIT_GROUPS } from "@/features/Habits/constants";
 import css from "./TodayPage.module.css";
 
 export function TodayPage() {
-  const {
-    habitsDueToday,
-    completeHabit,
-    chores,
-    completeChore,
-    tasks,
-    completeTask,
-  } = useStore();
+  const { habitsDueToday, completeHabit, tasks, completeTask } = useStore();
 
   const today = getTodayString();
   const habits = habitsDueToday();
-  const todayChores = chores.filter((e) => e.due_date === today);
   const todayTasks = tasks
     .filter((t) => !t.parent_task_id && !t.completed_at && t.due_date === today)
     .sort((a, b) => b.priority - a.priority);
 
-  const hasAnything =
-    habits.length + todayChores.length + todayTasks.length > 0;
+  const hasAnything = habits.length + todayTasks.length > 0;
 
   usePageHeader({ title: getTodayString("EEEE, MMM d") });
 
@@ -60,22 +51,6 @@ export function TodayPage() {
             );
           })}
         </FlexColumn>
-      )}
-
-      {todayChores.length > 0 && (
-        <Section title="Chores">
-          <List>
-            {todayChores.map((e) => (
-              <div key={e.id} className={css.row}>
-                <ToggleButton
-                  variant="square"
-                  onClick={() => completeChore(e.id)}
-                />
-                <p className={css.name}>{e.name}</p>
-              </div>
-            ))}
-          </List>
-        </Section>
       )}
 
       {todayTasks.length > 0 && (

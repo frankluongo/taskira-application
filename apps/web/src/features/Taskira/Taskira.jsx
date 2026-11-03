@@ -4,8 +4,8 @@ import { useStore } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import {
+  cancelAllPendingNotifications,
   requestNotificationPermission,
-  rescheduleAllChoreNotifications,
   rescheduleAllHabitNotifications,
   rescheduleAllTaskNotifications,
 } from "@/lib/notifications";
@@ -15,7 +15,7 @@ import { PageHeaderContext } from "./PageHeaderContext";
 import css from "./Taskira.module.css";
 
 export function Taskira() {
-  const { initialize, initialized, chores, habits, tasks } = useStore();
+  const { initialize, initialized, habits, tasks } = useStore();
   const { user } = useAuth();
   const [pageHeader, setPageHeader] = useState({ title: "", action: null });
 
@@ -25,11 +25,12 @@ export function Taskira() {
 
   useEffect(() => {
     if (!initialized) return;
-    requestNotificationPermission().then(() => {
-      rescheduleAllChoreNotifications(chores);
-      rescheduleAllHabitNotifications(habits);
-      rescheduleAllTaskNotifications(tasks);
-    });
+    requestNotificationPermission()
+      .then(cancelAllPendingNotifications)
+      .then(() => {
+        rescheduleAllHabitNotifications(habits);
+        rescheduleAllTaskNotifications(tasks);
+      });
   }, [initialized]);
 
   if (user && !initialized) return <Spinner />;
