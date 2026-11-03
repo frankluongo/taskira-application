@@ -42,6 +42,13 @@ export async function requestNotificationPermission() {
   }
 }
 
+export async function cancelAllPendingNotifications() {
+  if (!Capacitor.isNativePlatform()) return;
+  const { notifications } = await LocalNotifications.getPending();
+  if (notifications.length > 0)
+    await LocalNotifications.cancel({ notifications });
+}
+
 export async function scheduleHabitNotification(habit) {
   if (!Capacitor.isNativePlatform()) return;
   if (!habit.alarm_time) return;

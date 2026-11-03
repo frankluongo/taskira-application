@@ -4,6 +4,7 @@ import { useStore } from "@/lib/store";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import {
+  cancelAllPendingNotifications,
   requestNotificationPermission,
   rescheduleAllHabitNotifications,
   rescheduleAllTaskNotifications,
@@ -26,10 +27,12 @@ export function Taskira() {
 
   useEffect(() => {
     if (!initialized) return;
-    requestNotificationPermission().then(() => {
-      rescheduleAllHabitNotifications(habits);
-      rescheduleAllTaskNotifications(tasks);
-    });
+    requestNotificationPermission()
+      .then(cancelAllPendingNotifications)
+      .then(() => {
+        rescheduleAllHabitNotifications(habits);
+        rescheduleAllTaskNotifications(tasks);
+      });
   }, [initialized]);
 
   if (user && !initialized) return <Spinner />;
