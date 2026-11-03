@@ -1,24 +1,17 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { DndContext, closestCenter, useDroppable } from "@dnd-kit/core";
+import { DndContext, closestCenter } from "@dnd-kit/core";
 import {
   SortableContext,
-  verticalListSortingStrategy,
   horizontalListSortingStrategy,
   arrayMove,
 } from "@dnd-kit/sortable";
 import { useDragSensors } from "@/features/DragAndDrop/useDragSensors";
-import { useSortableItem } from "@/features/DragAndDrop/useSortableItem";
 import { useStore } from "@/lib/store";
 import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
-import {
-  Button,
-  IconCheckmark,
-  IconEdit,
-  IconGrip,
-  IconPlus,
-  IconTrash,
-} from "@/base";
+import { Button, IconCheckmark, IconEdit, IconPlus, IconTrash } from "@/base";
+import { ItemContainer } from "./ItemContainer";
+import { SectionChip } from "./SectionChip";
 import css from "./ChecklistDetailPage.module.css";
 
 function containerKey(sectionId) {
@@ -267,128 +260,5 @@ export function ChecklistDetailPage() {
         </Button>
       )}
     </>
-  );
-}
-
-function SectionChip({ section }) {
-  const { setNodeRef, style, handleProps } = useSortableItem(section.id);
-  return (
-    <button
-      ref={setNodeRef}
-      style={style}
-      {...handleProps}
-      className={css.chip}
-    >
-      {section.name}
-    </button>
-  );
-}
-
-function ItemContainer({
-  containerId,
-  items,
-  editing,
-  onToggle,
-  onRename,
-  onDelete,
-  onAdd,
-}) {
-  const { setNodeRef } = useDroppable({ id: containerId });
-  const [showAdd, setShowAdd] = useState(false);
-  const [newName, setNewName] = useState("");
-
-  function handleAdd(e) {
-    e.preventDefault();
-    const trimmed = newName.trim();
-    if (!trimmed) return;
-    onAdd(trimmed);
-    setNewName("");
-    setShowAdd(false);
-  }
-
-  return (
-    <div ref={setNodeRef} className={css.itemContainer}>
-      <SortableContext
-        items={items.map((i) => i.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        {items.map((item) => (
-          <ChecklistItemRow
-            key={item.id}
-            item={item}
-            editing={editing}
-            onToggle={onToggle}
-            onRename={onRename}
-            onDelete={onDelete}
-          />
-        ))}
-      </SortableContext>
-      {editing && !showAdd && (
-        <button className={css.addItem} onClick={() => setShowAdd(true)}>
-          <IconPlus /> Item
-        </button>
-      )}
-      {editing && showAdd && (
-        <form onSubmit={handleAdd} className={css.addItemForm}>
-          <input
-            autoFocus
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            placeholder="Item name…"
-            className={css.addItemInput}
-          />
-          <button type="submit" className={css.addItemSubmit}>
-            Add
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowAdd(false)}
-            className={css.addItemCancel}
-          >
-            Cancel
-          </button>
-        </form>
-      )}
-    </div>
-  );
-}
-
-function ChecklistItemRow({ item, editing, onToggle, onRename, onDelete }) {
-  const { setNodeRef, style, handleProps } = useSortableItem(item.id);
-
-  if (editing) {
-    return (
-      <div ref={setNodeRef} style={style} className={css.itemRow}>
-        <button {...handleProps} className={css.grip}>
-          <IconGrip />
-        </button>
-        <span
-          className={css.itemName}
-          onClick={() => {
-            const name = prompt("Item name?", item.name);
-            if (name?.trim()) onRename(item.id, name.trim());
-          }}
-        >
-          {item.name}
-        </span>
-        <Button onClick={() => onDelete(item.id)} variant="icon secondary slim">
-          <IconTrash />
-        </Button>
-      </div>
-    );
-  }
-
-  return (
-    <label ref={setNodeRef} style={style} className={css.itemRow}>
-      <input
-        type="checkbox"
-        checked={item.checked}
-        onChange={() => onToggle(item.id)}
-        className={css.checkbox}
-      />
-      <span className={`${css.itemName} ${item.checked ? css.checked : ""}`}>
-        {item.name}
-      </span>
-    </label>
   );
 }

@@ -159,6 +159,8 @@ At 428 lines, it's the biggest file in the app. It holds four components and two
 
 **Change:** Move `SectionChip`, `ItemContainer`, and `ChecklistItemRow` into their own files in `features/Checklists/`. Each one gets its own `.module.css`, holding the rules for the classes it uses. The page keeps the data loading, header, drag handlers, and the `containerKey` helpers those handlers use. This is a pure move, with no logic changes.
 
+**Found during implementation:** `ChecklistDetailPage.module.css` only defines `.actions`, `.itemContainer`, `.itemRow`, `.section`, and `.sectionHeader`. The JSX also uses `.chip`, `.grip`, `.itemName`, `.checkbox`, `.checked`, `.addItem`, `.addItemForm`, `.addItemInput`, `.addItemSubmit`, `.addItemCancel`, `.sectionChips`, `.sectionName`, `.sectionActions`, `.addSection`, and `.empty`, but none of them is defined, so each resolves to `undefined` and sets no class. The split moves only the rules that exist: `.itemContainer` goes to `ItemContainer.module.css` and `.itemRow` goes to `ChecklistItemRow.module.css`. `SectionChip`'s only class, `.chip`, is undefined, so it gets no CSS module and its `className` is dropped. The rendered DOM is the same. Styling these elements is out of scope.
+
 `TaskItem.jsx`'s `PrioritySelect` is small and only used there, so it can stay. After §4.3.3 it's only a few lines.
 
 #### 4.4.2 `Taskira.jsx` effects
