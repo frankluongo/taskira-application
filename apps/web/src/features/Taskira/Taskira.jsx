@@ -15,16 +15,18 @@ import { PageHeaderContext } from "./PageHeaderContext";
 import css from "./Taskira.module.css";
 
 export function Taskira() {
-  const { initialize, initialized, habits, tasks } = useStore();
+  const { initialize, initialized } = useStore();
   const { user } = useAuth();
   const [pageHeader, setPageHeader] = useState({ title: "", action: null });
 
   useEffect(() => {
     if (user) initialize();
-  }, [user]);
+  }, [user, initialize]);
 
   useEffect(() => {
     if (!initialized) return;
+    // Read once at startup; store actions handle each change after that
+    const { habits, tasks } = useStore.getState();
     requestNotificationPermission()
       .then(cancelAllPendingNotifications)
       .then(() => {
