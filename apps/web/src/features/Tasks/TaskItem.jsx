@@ -16,7 +16,7 @@ import {
 } from "@/base";
 import css from "./TaskItem.module.css";
 
-export function TaskItem({ task, subtasks = [] }) {
+export function TaskItem({ task, subtasks = [], dragMode = false }) {
   const { completeTask, updateTask, deleteTask, addTask } = useStore();
   const [showEditModal, setShowEditModal] = useState(false);
   const [showSubtaskForm, setShowSubtaskForm] = useState(false);
@@ -53,9 +53,11 @@ export function TaskItem({ task, subtasks = [] }) {
   return (
     <div ref={setNodeRef} style={style} className={css.item}>
       <div className={css.row}>
-        <button {...attributes} {...listeners} className={css.grip}>
-          <IconGrip />
-        </button>
+        {dragMode && (
+          <button {...attributes} {...listeners} className={css.grip}>
+            <IconGrip />
+          </button>
+        )}
 
         <ToggleButton
           variant="md"
