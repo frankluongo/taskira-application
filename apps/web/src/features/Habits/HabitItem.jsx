@@ -4,6 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useStore } from "@/lib/store";
 import { formatTime } from "@/lib/date";
 import { HabitForm } from "./HabitForm";
+import { RECURRENCE_LABELS } from "./constants";
 import {
   Button,
   IconBell,
@@ -15,13 +16,6 @@ import {
 } from "@/base";
 
 import css from "./HabitItem.module.css";
-
-const RECURRENCE_LABELS = {
-  daily: "Daily",
-  weekdays: "Weekdays",
-  weekends: "Weekends",
-  specific_days: "Specific days",
-};
 
 export function HabitItem({ habit, dragMode = false }) {
   const {

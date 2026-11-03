@@ -4,6 +4,7 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { DragContext } from "@/features/DragAndDrop/DragContext";
 import { HabitForm } from "./HabitForm";
 import { HabitItem } from "./HabitItem";
+import { HABIT_GROUPS } from "./constants";
 
 import { useStore } from "@/lib/store";
 import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
@@ -20,8 +21,6 @@ import {
   Modal,
 } from "@/base";
 import css from "./HabitsPage.module.css";
-
-const GROUPS = ["AM", "Misc", "PM"];
 
 export function HabitsPage() {
   const { habits, addHabit, reorderHabits, isHabitDoneToday, habitsDueToday } =
@@ -72,7 +71,7 @@ export function HabitsPage() {
   return (
     <FlexColumn>
       <FlexColumn>
-        {GROUPS.map((group) => {
+        {HABIT_GROUPS.map((group) => {
           const allGroupHabits = habits
             .filter((h) => h.group_name === group)
             .filter((h) => !filterToday || todayHabitIds.has(h.id))
