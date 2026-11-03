@@ -1,4 +1,31 @@
 @layer features {
+  .actions {
+    align-items: center;
+    display: flex;
+    gap: 1rem;
+  }
+
   .checklistDetailRoute {
+  }
+
+  .itemContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-inline-start: 1rem;
+  }
+
+  .itemRow {
+    align-items: center;
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .section {
+    padding: 1rem;
+  }
+
+  .sectionHeader {
+    padding-bottom: 0.5rem;
   }
 }
