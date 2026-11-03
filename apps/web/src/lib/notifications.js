@@ -25,6 +25,44 @@ function nextHabitOccurrence(habit) {
   return null;
 }
 
+function habitNotification(habit) {
+  if (!habit.alarm_time) return null;
+  const at = nextHabitOccurrence(habit);
+  if (!at) return null;
+  return {
+    id: notifId(habit.id),
+    title: "Habit Reminder",
+    body: habit.name,
+    schedule: { at },
+  };
+}
+
+function taskNotification(task) {
+  if (!task.due_date || !task.alarm_time) return null;
+  const at = new Date(`${task.due_date}T${task.alarm_time}`);
+  if (at <= new Date()) return null;
+  return {
+    id: notifId(task.id),
+    title: "Task Reminder",
+    body: task.name,
+    schedule: { at },
+  };
+}
+
+async function schedule(notifications) {
+  if (!Capacitor.isNativePlatform()) return;
+  const toSchedule = notifications.filter(Boolean);
+  if (toSchedule.length === 0) return;
+  const { display } = await LocalNotifications.checkPermissions();
+  if (display !== "granted") return;
+  await LocalNotifications.schedule({ notifications: toSchedule });
+}
+
+async function cancel(uuid) {
+  if (!Capacitor.isNativePlatform()) return;
+  await LocalNotifications.cancel({ notifications: [{ id: notifId(uuid) }] });
+}
+
 export async function requestNotificationPermission() {
   if (!Capacitor.isNativePlatform()) return;
   const { display } = await LocalNotifications.checkPermissions();
@@ -40,103 +78,28 @@ export async function cancelAllPendingNotifications() {
     await LocalNotifications.cancel({ notifications });
 }
 
-export async function scheduleHabitNotification(habit) {
-  if (!Capacitor.isNativePlatform()) return;
-  if (!habit.alarm_time) return;
-  const at = nextHabitOccurrence(habit);
-  if (!at) return;
-  const { display } = await LocalNotifications.checkPermissions();
-  if (display !== "granted") return;
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        id: notifId(habit.id),
-        title: "Habit Reminder",
-        body: habit.name,
-        schedule: { at },
-      },
-    ],
-  });
+export function scheduleHabitNotification(habit) {
+  return schedule([habitNotification(habit)]);
 }
 
-export async function cancelHabitNotification(habitId) {
-  if (!Capacitor.isNativePlatform()) return;
-  await LocalNotifications.cancel({
-    notifications: [{ id: notifId(habitId) }],
-  });
+export function cancelHabitNotification(habitId) {
+  return cancel(habitId);
 }
 
-export async function rescheduleAllHabitNotifications(habits) {
-  if (!Capacitor.isNativePlatform()) return;
-  const { display } = await LocalNotifications.checkPermissions();
-  if (display !== "granted") return;
-
-  const ids = habits
-    .filter((h) => h.alarm_time)
-    .map((h) => ({ id: notifId(h.id) }));
-  if (ids.length > 0) await LocalNotifications.cancel({ notifications: ids });
-
-  const toSchedule = habits
-    .filter((h) => h.alarm_time)
-    .map((h) => ({ habit: h, at: nextHabitOccurrence(h) }))
-    .filter(({ at }) => at != null)
-    .map(({ habit, at }) => ({
-      id: notifId(habit.id),
-      title: "Habit Reminder",
-      body: habit.name,
-      schedule: { at },
-    }));
-
-  if (toSchedule.length > 0)
-    await LocalNotifications.schedule({ notifications: toSchedule });
+// Callers must clear pending notifications first; this only adds
+export function scheduleAllHabitNotifications(habits) {
+  return schedule(habits.map(habitNotification));
 }
 
-export async function scheduleTaskNotification(task) {
-  if (!Capacitor.isNativePlatform()) return;
-  if (!task.due_date || !task.alarm_time) return;
-  const at = new Date(`${task.due_date}T${task.alarm_time}`);
-  if (at <= new Date()) return;
-  const { display } = await LocalNotifications.checkPermissions();
-  if (display !== "granted") return;
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        id: notifId(task.id),
-        title: "Task Reminder",
-        body: task.name,
-        schedule: { at },
-      },
-    ],
-  });
+export function scheduleTaskNotification(task) {
+  return schedule([taskNotification(task)]);
 }
 
-export async function cancelTaskNotification(taskId) {
-  if (!Capacitor.isNativePlatform()) return;
-  await LocalNotifications.cancel({ notifications: [{ id: notifId(taskId) }] });
+export function cancelTaskNotification(taskId) {
+  return cancel(taskId);
 }
 
-export async function rescheduleAllTaskNotifications(tasks) {
-  if (!Capacitor.isNativePlatform()) return;
-  const { display } = await LocalNotifications.checkPermissions();
-  if (display !== "granted") return;
-
-  const ids = tasks
-    .filter((t) => t.alarm_time)
-    .map((t) => ({ id: notifId(t.id) }));
-  if (ids.length > 0) await LocalNotifications.cancel({ notifications: ids });
-
-  const now = new Date();
-  const toSchedule = tasks
-    .filter((t) => t.due_date && t.alarm_time)
-    .map((t) => ({ task: t, at: new Date(`${t.due_date}T${t.alarm_time}`) }))
-    .filter(({ at }) => at > now)
-    .map(({ task, at }) => ({
-      id: notifId(task.id),
-      title: "Task Reminder",
-      body: task.name,
-      schedule: { at },
-    }));
-
-  if (toSchedule.length > 0)
-    await LocalNotifications.schedule({ notifications: toSchedule });
+// Callers must clear pending notifications first; this only adds
+export function scheduleAllTaskNotifications(tasks) {
+  return schedule(tasks.map(taskNotification));
 }

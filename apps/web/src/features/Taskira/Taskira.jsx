@@ -6,8 +6,8 @@ import { supabase } from "@/lib/supabase";
 import {
   cancelAllPendingNotifications,
   requestNotificationPermission,
-  rescheduleAllHabitNotifications,
-  rescheduleAllTaskNotifications,
+  scheduleAllHabitNotifications,
+  scheduleAllTaskNotifications,
 } from "@/lib/notifications";
 import { Spinner } from "@/base";
 import { AppNavigation } from "./AppNavigation";
@@ -28,8 +28,8 @@ export function Taskira() {
     requestNotificationPermission()
       .then(cancelAllPendingNotifications)
       .then(() => {
-        rescheduleAllHabitNotifications(habits);
-        rescheduleAllTaskNotifications(tasks);
+        scheduleAllHabitNotifications(habits);
+        scheduleAllTaskNotifications(tasks);
       });
   }, [initialized]);
 
