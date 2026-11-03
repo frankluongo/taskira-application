@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { addDays, addWeeks, addMonths, addYears, format } from "date-fns";
+import { format } from "date-fns";
 import { supabase } from "./supabase";
 import {
   scheduleHabitNotification,
@@ -11,35 +11,6 @@ import {
 export const INBOX_PROJECT_ID = "00000000-0000-0000-0000-000000000001";
 
 const today = () => format(new Date(), "yyyy-MM-dd");
-
-function nextRecurrenceDate(chore) {
-  const base =
-    chore.repeat_from === "completion_date"
-      ? new Date()
-      : new Date(chore.due_date);
-  switch (chore.recurrence) {
-    case "weekly":
-      return format(addWeeks(base, 1), "yyyy-MM-dd");
-    case "monthly":
-      return format(addMonths(base, 1), "yyyy-MM-dd");
-    case "yearly":
-      return format(addYears(base, 1), "yyyy-MM-dd");
-    default: {
-      if (chore.recurrence?.startsWith("custom:")) {
-        const [, n, unit] = chore.recurrence.split(":");
-        const count = parseInt(n, 10);
-        if (unit === "days") return format(addDays(base, count), "yyyy-MM-dd");
-        if (unit === "weeks")
-          return format(addWeeks(base, count), "yyyy-MM-dd");
-        if (unit === "months")
-          return format(addMonths(base, count), "yyyy-MM-dd");
-        if (unit === "years")
-          return format(addYears(base, count), "yyyy-MM-dd");
-      }
-      return null;
-    }
-  }
-}
 
 export const useStore = create((set, get) => ({
   habits: [],
@@ -64,7 +35,11 @@ export const useStore = create((set, get) => ({
         .from("habit_completions")
         .select("*")
         .eq("completed_on", today()),
-      supabase.from("tasks").select("*").order("sort_order"),
+      supabase
+        .from("tasks")
+        .select("*")
+        .eq("project_id", INBOX_PROJECT_ID)
+        .order("sort_order"),
       supabase.from("checklists").select("*").order("sort_order"),
       supabase.from("checklist_sections").select("*").order("sort_order"),
       supabase.from("checklist_items").select("*").order("sort_order"),
@@ -76,19 +51,11 @@ export const useStore = create((set, get) => ({
     const liveHabits = (habits || []).filter(
       (h) => !h.end_date || h.end_date >= d,
     );
-    const staleDailyTasks = (tasks || []).filter(
-      (t) => t.recurrence === "daily" && t.due_date && t.due_date < d,
-    );
-    const freshTasks = (tasks || []).map((t) =>
-      t.recurrence === "daily" && t.due_date && t.due_date < d
-        ? { ...t, due_date: d }
-        : t,
-    );
 
     set({
       habits: liveHabits,
       habit_completions: habit_completions || [],
-      tasks: freshTasks,
+      tasks: tasks || [],
       checklists: checklists || [],
       checklist_sections: checklist_sections || [],
       checklist_items: checklist_items || [],
@@ -103,13 +70,6 @@ export const useStore = create((set, get) => ({
           "id",
           expiredHabits.map((h) => h.id),
         );
-    }
-    if (staleDailyTasks.length > 0) {
-      await Promise.all(
-        staleDailyTasks.map((t) =>
-          supabase.from("tasks").update({ due_date: d }).eq("id", t.id),
-        ),
-      );
     }
   },
 
@@ -258,53 +218,10 @@ export const useStore = create((set, get) => ({
   },
 
   completeTask: async (id) => {
-    const task = get().tasks.find((t) => t.id === id);
-    if (!task) return;
-
-    if (task.project_id === INBOX_PROJECT_ID) {
-      set((s) => ({
-        tasks: s.tasks.filter((t) => t.id !== id && t.parent_task_id !== id),
-      }));
-      await supabase.from("tasks").delete().eq("id", id);
-      cancelTaskNotification(id);
-      return;
-    }
-
-    if (task.recurrence === "daily") {
-      const nextDate = format(addDays(new Date(), 1), "yyyy-MM-dd");
-      set((s) => ({
-        tasks: s.tasks.map((t) =>
-          t.id === id ? { ...t, due_date: nextDate } : t,
-        ),
-      }));
-      await supabase.from("tasks").update({ due_date: nextDate }).eq("id", id);
-      await cancelTaskNotification(id);
-      const updated = get().tasks.find((t) => t.id === id);
-      if (updated) scheduleTaskNotification(updated);
-      return;
-    }
-
-    if (task.recurrence && task.due_date) {
-      const nextDate = nextRecurrenceDate(task);
-      set((s) => ({
-        tasks: s.tasks.map((t) =>
-          t.id === id ? { ...t, due_date: nextDate } : t,
-        ),
-      }));
-      await supabase.from("tasks").update({ due_date: nextDate }).eq("id", id);
-      await cancelTaskNotification(id);
-      const updated = get().tasks.find((t) => t.id === id);
-      if (updated) scheduleTaskNotification(updated);
-      return;
-    }
-
-    const now = new Date().toISOString();
     set((s) => ({
-      tasks: s.tasks.map((t) =>
-        t.id === id ? { ...t, completed_at: now } : t,
-      ),
+      tasks: s.tasks.filter((t) => t.id !== id && t.parent_task_id !== id),
     }));
-    await supabase.from("tasks").update({ completed_at: now }).eq("id", id);
+    await supabase.from("tasks").delete().eq("id", id);
     cancelTaskNotification(id);
   },
 
