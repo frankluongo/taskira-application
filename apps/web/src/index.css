@@ -125,7 +125,6 @@
     /* Grayscale */
     --color-black: #1f2127;
     --color-space-indigo: #22223b;
-    --color-platinum: #edf2f4;
     --color-white: #ffffff;
     /* #endregion */
     /* ========================================================== */
@@ -189,23 +188,6 @@
       --theme-color-text-500: var(--color-white);
     }
   }
-
-  /* Manual override for previewing both themes regardless of OS setting
-     (see the Kitchen Sink page's light/dark toggle). Higher specificity
-     than the media query above, so it always wins when set. */
-  :root[data-theme="light"] {
-    --theme-color-accent-500: var(--color-turquoise-surf);
-    --theme-color-on-accent: var(--color-black);
-    --theme-color-background-500: var(--color-white);
-    --theme-color-text-500: var(--color-space-indigo);
-  }
-
-  :root[data-theme="dark"] {
-    --theme-color-accent-500: var(--color-emerald);
-    --theme-color-on-accent: var(--color-black);
-    --theme-color-background-500: var(--color-black);
-    --theme-color-text-500: var(--color-white);
-  }
 }
 
 @layer base {
@@ -226,14 +208,5 @@
   #root {
     display: flex;
     flex-direction: column;
-  }
-}
-
-@layer utilities {
-  .pt-safe {
-    padding-top: calc(env(safe-area-inset-top) + 1rem);
-  }
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom);
   }
 }

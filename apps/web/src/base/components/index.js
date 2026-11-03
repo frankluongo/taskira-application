@@ -1,7 +1,6 @@
 export * from "./Button/Button";
 export * from "./Container/Container";
 export * from "./Details/Details";
-export * from "./Disclosure/Disclosure";
 export * from "./FlexColumn/FlexColumn";
 export * from "./Float/Float";
 export * from "./Footer/Footer";

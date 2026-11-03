@@ -78,27 +78,6 @@
   /* #endregion */
   /* ICON: END */
   /* ============================================================== */
-  /* PILL: START */
-  /* #region */
-  .button.pill {
-    padding: 0.25rem 0.5rem;
-
-    font-size: 0.75rem;
-
-    background-color: color-mix(
-      in srgb,
-      var(--theme-color-accent-500) 20%,
-      transparent
-    );
-    border-radius: 9999px;
-  }
-
-  .button.pill[aria-pressed="true"] {
-    background-color: var(--theme-color-accent-500);
-  }
-  /* #endregion */
-  /* PILL: END */
-  /* ============================================================== */
   /* PRIMARY: START */
   /* #region */
   .button.primary {
@@ -163,10 +142,6 @@
 
     border-radius: 50%;
     border: 1px solid var(--theme-color-accent-500);
-  }
-
-  .button.toggle.square {
-    border-radius: 0.25rem;
   }
 
   .button.toggle.sm {

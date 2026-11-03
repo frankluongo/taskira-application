@@ -5,7 +5,6 @@ import { ProtectedRoute } from "@/features/Auth/ProtectedRoute";
 import { ChecklistDetailPage } from "@/features/Checklists/ChecklistDetailPage";
 import { ChecklistsPage } from "@/features/Checklists/ChecklistsPage";
 import { HabitsPage } from "@/features/Habits/HabitsPage";
-import { KitchenSinkPage } from "@/features/KitchenSink/KitchenSinkPage";
 import { Taskira } from "@/features/Taskira/Taskira";
 import { TasksPage } from "@/features/Tasks/TasksPage";
 import { TodayPage } from "@/features/Today/TodayPage";
@@ -23,7 +22,6 @@ export const router = createHashRouter([
           { path: "tasks", element: <TasksPage /> },
           { path: "checklists", element: <ChecklistsPage /> },
           { path: "checklists/:id", element: <ChecklistDetailPage /> },
-          { path: "kitchen-sink", element: <KitchenSinkPage /> },
         ],
       },
     ],
