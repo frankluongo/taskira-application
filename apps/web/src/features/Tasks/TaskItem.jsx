@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useSortableItem } from "@/features/DragAndDrop/useSortableItem";
 import { useStore } from "@/lib/store";
 import { formatTime } from "@/lib/date";
 import { TaskForm } from "./TaskForm";
@@ -24,19 +23,7 @@ export function TaskItem({ task, subtasks = [], dragMode = false }) {
   const [subtaskName, setSubtaskName] = useState("");
   const [expanded, setExpanded] = useState(true);
 
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: task.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(task.id);
 
   function addSubtask(e) {
     e.preventDefault();
@@ -55,7 +42,7 @@ export function TaskItem({ task, subtasks = [], dragMode = false }) {
     <div ref={setNodeRef} style={style} className={css.item}>
       <div className={css.row}>
         {dragMode && (
-          <button {...attributes} {...listeners} className={css.grip}>
+          <button {...handleProps} className={css.grip}>
             <IconGrip />
           </button>
         )}

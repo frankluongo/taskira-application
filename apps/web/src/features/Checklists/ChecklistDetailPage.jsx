@@ -1,21 +1,14 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  useDroppable,
-} from "@dnd-kit/core";
+import { DndContext, closestCenter, useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
   verticalListSortingStrategy,
   horizontalListSortingStrategy,
-  useSortable,
   arrayMove,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { useDragSensors } from "@/features/DragAndDrop/useDragSensors";
+import { useSortableItem } from "@/features/DragAndDrop/useSortableItem";
 import { useStore } from "@/lib/store";
 import { usePageHeader } from "@/features/Taskira/PageHeaderContext";
 import {
@@ -68,9 +61,7 @@ export function ChecklistDetailPage() {
     .filter((i) => !i.section_id)
     .sort((a, b) => a.sort_order - b.sort_order);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-  );
+  const sensors = useDragSensors();
 
   usePageHeader(
     checklist
@@ -280,25 +271,12 @@ export function ChecklistDetailPage() {
 }
 
 function SectionChip({ section }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: section.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(section.id);
   return (
     <button
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
+      {...handleProps}
       className={css.chip}
     >
       {section.name}
@@ -376,24 +354,12 @@ function ItemContainer({
 }
 
 function ChecklistItemRow({ item, editing, onToggle, onRename, onDelete }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-  };
+  const { setNodeRef, style, handleProps } = useSortableItem(item.id);
 
   if (editing) {
     return (
       <div ref={setNodeRef} style={style} className={css.itemRow}>
-        <button {...attributes} {...listeners} className={css.grip}>
+        <button {...handleProps} className={css.grip}>
           <IconGrip />
         </button>
         <span
