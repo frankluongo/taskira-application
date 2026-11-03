@@ -5,12 +5,7 @@ import reactHooks from "eslint-plugin-react-hooks";
 
 export default [
   {
-    ignores: [
-      "**/dist/**",
-      "apps/ios/ios/**",
-      "apps/ios/android/**",
-      "apps/tauri/src-tauri/**",
-    ],
+    ignores: ["**/dist/**", "apps/ios/ios/**", "apps/tauri/src-tauri/**"],
   },
   js.configs.recommended,
   {
